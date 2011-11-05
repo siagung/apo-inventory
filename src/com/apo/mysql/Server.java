@@ -38,28 +38,25 @@ public class Server {
 	 * @param url The URL could be over IP, etc. Follow: [host][,failoverhost...][:port]/[database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]...; leaving the field null will establish the connection to localhost
 	 * @param dbName The name of the database to be accessed; leaving this null only connects to the server
 	 * @throws DatabaseNotFoundException the database could not be found
+	 * @throws SQLException the database has incorrect data
 	 */
-	public Server (String username, String password, String url, String dbName) throws DatabaseNotFoundException {
-		try {
-			if (checkDbExists(url, username, password, dbName)) {
-				if (url == null) {
+	public Server (String username, String password, String url, String dbName) throws DatabaseNotFoundException, SQLException {
+		if (dbName == null || (dbName != null || !dbName.equalsIgnoreCase("")) && checkDbExists(url, username, password, dbName)) {
+			if (url == null) {
 				this.url = getDefaultUrl(dbName);
-				}
-				else {
-					this.url = getCustomUrl(url, dbName);
-				}
-				
-				establishConnection(this.url, username, password);
+			}
+			else {
+				this.url = getCustomUrl(url, dbName);
 			}
 			
-			else {
-				throw new DatabaseNotFoundException();
-			}
+			establishConnection(this.url, username, password);
+			System.out.println(TAG + "Connected to a specific database.");
 		}
-		catch (SQLException e) {
-			System.out.println(TAG + "Something happened with the SQL Server");
-			e.printStackTrace();
+		
+		else {
+			throw new DatabaseNotFoundException();
 		}
+		
 				
 	}
 	

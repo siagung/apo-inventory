@@ -21,15 +21,28 @@ public class DBOperator {
 	 * @param password Password associated with the username
 	 * @param url The custom url used to connect to a remote database/server; can be null to indicate localhost
 	 * @param dbName The name of the database to be connected to; can be null if only server will be used for connection
-	 * @throws DatabaseNotFoundException 
+	 * @throws DatabaseNotFoundException The database could not be found (bad dbName spelling?)
+	 * @throws SQLException The operation could not be completed (wrong username/password?)
 	 */
-	public DBOperator (String username, String password, String url, String dbName) throws DatabaseNotFoundException {
+	public DBOperator (String username, String password, String url, String dbName) throws DatabaseNotFoundException, SQLException {
 		this.db = new Server (username, password, url, dbName);
 	}
 	
+	/**Initializes the server alongside the operator of the server
+	 * 
+	 * @param username Username used to connect to the server/database
+	 * @param password Char array representing the password associated with the user name
+	 * @param url Customer url used to connect to a remote database/server; can be null to indicate localhost
+	 * @param dbName The name of the database to be connected to; can be null if only server will be used for connection
+	 * @throws DatabaseNotFoundException The database could not be found (bad dbName spelling?)
+	 */
 	public DBOperator (String username, char[] password, String url, String dbName) throws DatabaseNotFoundException {
 		this.db = new Server (username, password, url, dbName);
 	}
+	/**Initializes the server alongside the operator of the server
+	 * 
+	 * @param db The database connection to the server
+	 */
 	public DBOperator (Server db) {
 		this.db = db;
 	}
