@@ -81,6 +81,26 @@ public class Server {
 	   establishConnection(this.url, username, parsePassword(password));
    }
    
+   /**Use this method when you've already established a connection to the MySQL Server, but not any specific database
+    * 
+    * @param dbName The name of the database you wish to use on an active Server connection
+    */
+   public void useDatabase (String dbName) {
+	   try {
+		if (serverConnection != null && connectionStatus) {
+		   this.serverConnection.createStatement().execute("USE " + dbName);
+		}
+		else {
+			System.out.println(TAG + "Database change operation: Nothing happened.");
+			return;
+		}
+		System.out.println("Database switch success!");
+	} catch (SQLException e) {
+		System.out.println("The database name you specified may not exist.");
+		e.printStackTrace();
+	}
+   }
+   
    /**Checks whether a database exists; uses mysql table of the server; still not tested
     * 
     * @param username The user name associated with the server

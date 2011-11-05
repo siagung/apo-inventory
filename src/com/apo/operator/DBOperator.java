@@ -12,10 +12,23 @@ import com.apo.mysql.exception.DatabaseNotFoundException;
 
 public class DBOperator {
 	
+	/**Server object that the operator will use to execute CRUD actions**/
 	protected Server db;
 	
+	/**Initializes the server alongside the operator of the server
+	 * 
+	 * @param username Username used to connect to the server/database
+	 * @param password Password associated with the username
+	 * @param url The custom url used to connect to a remote database/server; can be null to indicate localhost
+	 * @param dbName The name of the database to be connected to; can be null if only server will be used for connection
+	 * @throws DatabaseNotFoundException 
+	 */
 	public DBOperator (String username, String password, String url, String dbName) throws DatabaseNotFoundException {
-		db = new Server (username, password, url, dbName);
+		this.db = new Server (username, password, url, dbName);
+	}
+	
+	public DBOperator (String username, char[] password, String url, String dbName) throws DatabaseNotFoundException {
+		this.db = new Server (username, password, url, dbName);
 	}
 	public DBOperator (Server db) {
 		this.db = db;
