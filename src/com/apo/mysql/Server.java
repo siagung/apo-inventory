@@ -1,14 +1,17 @@
 package com.apo.mysql;
 
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.apo.mysql.exception.NoDatabaseNameException;
+import com.apo.mysql.exception.DatabaseNotFoundException;
 
 /**Establishes a connection to server; doesn't store user name and password, just server URL**/
 public class Server {
@@ -33,33 +36,31 @@ public class Server {
 	 * @param username The username to the MySQL Server
 	 * @param password The password to the MySQL Server
 	 * @param url The URL could be over IP, etc. Follow: [host][,failoverhost...][:port]/[database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]...; leaving the field null will establish the connection to localhost
-	 * @param dbName The name of the database to be accessed
-	 * @throws NoDatabaseNameException When dbName is null
+	 * @param dbName The name of the database to be accessed; leaving this null only connects to the server
+	 * @throws DatabaseNotFoundException the database could not be found
 	 */
-	public Server (String username, String password, String url, String dbName) throws NoDatabaseNameException {
-		/*if (checkDbExists(url, username, password, dbName)) {
-			if (url == null) {
-			this.url = getDefaultUrl(dbName);
-			}
-			else {
-				this.url = getCustomUrl(url, dbName);
+	public Server (String username, String password, String url, String dbName) throws DatabaseNotFoundException {
+		try {
+			if (checkDbExists(url, username, password, dbName)) {
+				if (url == null) {
+				this.url = getDefaultUrl(dbName);
+				}
+				else {
+					this.url = getCustomUrl(url, dbName);
+				}
+				
+				establishConnection(this.url, username, password);
 			}
 			
-			establishConnection(this.url, username, password);
+			else {
+				throw new DatabaseNotFoundException();
+			}
 		}
-		
-		else {
-			throw new DatabaseNotFoundException();
-		}*/
-		
-		if (url == null) {
-			this.url = getDefaultUrl(dbName);
+		catch (SQLException e) {
+			System.out.println(TAG + "Something happened with the SQL Server");
+			e.printStackTrace();
 		}
-		else {
-			this.url = getCustomUrl(url, dbName);
-		}
-		
-		establishConnection(this.url, username, password);
+				
 	}
 	
 	/**establishes a connection to the MySQL server
@@ -67,10 +68,9 @@ public class Server {
     * @param username The user name associated with the server
     * @param password The char array representation of the password associated with the user name
     * @param url The URL could be over IP, etc. Follow: [host][,failoverhost...][:port]/[database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]...; leaving the field null will establish the connection to the localhost
-    * @param dbName The name of the database to be accessed
-	 * @throws NoDatabaseNameException When dbName is null, this is thrown
-    */
-   public Server (String username, char[] password, String url, String dbName) throws NoDatabaseNameException {
+    * @param dbName The name of the database to be accessed; leaving this null will enable access to server only
+	*/
+   public Server (String username, char[] password, String url, String dbName) {
 	   if (url == null) {
 			this.url = getDefaultUrl(dbName);
 		}
@@ -87,15 +87,29 @@ public class Server {
     * @param password The password associated with the user name
     * @param dbName The database name to be checked
     * @return true if the database exists
-    * @throws NoDatabaseNameException database name is null
+    * @throws SQLException user name/password/url is/are invalid
     */
-   private boolean checkDbExists(String url, String username, String password, String dbName) throws NoDatabaseNameException {
+   private boolean checkDbExists(String url, String username, String password, String dbName) throws SQLException {
+	   ArrayList<String> availableTables = new ArrayList<String>();
 	   if (url!=null) {
-		   establishConnection(getCustomUrl(url, "mysql"), username, password);
+		   establishConnection(getCustomUrl(url, null), username, password);
 	   }
 	   else {
-		   establishConnection(getDefaultUrl("mysql"), username, password);
+		   establishConnection(getDefaultUrl(null), username, password);
 	   }
+	   DatabaseMetaData dbMeta = this.serverConnection.getMetaData();
+	   ResultSet rs = dbMeta.getCatalogs();
+	   while (rs.next()) {
+		   String listOfDatabases = rs.getString(rs.getString("TABLE_CAT"));
+		   availableTables.add(listOfDatabases);
+	   }
+	   rs.close();
+	   serverConnection.close();
+	   if (availableTables.contains(dbName)) {
+		   System.out.println(TAG + "Found the database");
+		   return true;
+	   }
+	   
 	   return false;
    }
 	
@@ -116,7 +130,7 @@ public class Server {
     		fireOnConnectedEvent();
     	}
     	catch (SQLException ex) {
-    		System.err.println(TAG + "Can't connect");
+    		System.err.println(TAG + "Can't connect. User name, password, or url may be incorrect.");
     		this.connectionStatus = false;
     		ex.printStackTrace();
     	} catch (InstantiationException e) {
@@ -138,12 +152,8 @@ public class Server {
 	 * 
 	 * @param dbName The name of the database to be used; leaving this field null only returns the localhost url
 	 * @return The url of the connection to localhost + dbName
-	 * @throws NoDatabaseNameException When dbName is null
 	 */
-	private String getDefaultUrl(String dbName) throws NoDatabaseNameException {
-		if (dbName == null) {
-			throw new NoDatabaseNameException();
-		}
+	private String getDefaultUrl(String dbName) {
 		return URL_PREFIX + "localhost/" + dbName;
 	}
 	
@@ -152,13 +162,30 @@ public class Server {
 	 * @param serverUrl The custom URL where the server is
 	 * @param dbName The name of the database to be connected; leaving this field null only returns the custom server url
 	 * @return custom URL that is re-packaged into a JDBC url
-	 * @throws NoDatabaseNameException When dbName is null
 	 */
-	private String getCustomUrl(String serverUrl, String dbName) throws NoDatabaseNameException {
-		if (dbName == null) {
-			throw new NoDatabaseNameException();
+	private String getCustomUrl(String serverUrl, String dbName) {
+		if (!dbName.endsWith("/")) {
+			return URL_PREFIX + serverUrl + "/" + dbName;
 		}
 		return URL_PREFIX + serverUrl + dbName;
+	}
+	
+	/**Disconnects the underlying Connection object of the Server object
+	 * 
+	 * @throws SQLException Something went wrong while disconnecting from the SQL Server
+	 */
+	public void close() throws SQLException {
+		if (serverConnection != null) {
+			serverConnection.close();
+		}
+	}
+	
+	/**Returns the connection that the Server is using to connect to the MySQL server
+	 * 
+	 * @return the Connection object that the Server is using to connect to the MySQL server
+	 */
+	public Connection getConnection() {
+		return serverConnection;
 	}
 	
 	/**Parse passwords from char array to String
