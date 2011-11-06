@@ -12,6 +12,8 @@ import com.apo.mysql.exception.DatabaseNotFoundException;
 
 public class DBOperator {
 	
+	protected final String TAG = this.getClass().getCanonicalName();
+	
 	/**Server object that the operator will use to execute CRUD actions**/
 	protected Server db;
 	
@@ -187,4 +189,15 @@ public class DBOperator {
         System.out.println(querySQL.toString());
         return queryStatement.executeQuery(querySQL.toString());
     }
+    
+    /**Returns the maximum number of an id column in a table
+	 * 
+	 * @param tableName The table that will be looked up
+	 * @param idColumn The column of the table that will contain integers; the largest number itself is returned
+	 * @return
+	 */
+	protected int getMaxId (String tableName, String idColumn) {
+		
+	}
+	
 }

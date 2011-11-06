@@ -15,7 +15,8 @@ import com.apo.mysql.exception.DatabaseNotFoundException;
 
 /**Establishes a connection to server; doesn't store user name and password, just server URL**/
 public class Server {
-	private final String TAG = this.getClass().getCanonicalName();
+	/**TAG used for debugging**/
+	protected final String TAG = this.getClass().getCanonicalName();
 	
 	/**Store the name of the database that the server will connect to**/
 	String dbName;
