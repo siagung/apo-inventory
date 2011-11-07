@@ -254,14 +254,66 @@ public class RevisableDBOperator extends DBOperator {
 	 * 	
 	 * @param tableName the table name to be looked up
 	 * @param uniqueId the unique id of the record to be reverted
+	 * @param idColumn The label of the column holding the ids
 	 * @param newHeadRevId the EXISTING revision id that the record will be reverted to
+	 * @param revIdColumn The label of the column holding the revision ids
+	 * @param headMarkerColumn The label of the column holding the head markers
 	 * @throws NoRevisionExistsException the revision id you put in this method does not exist
+	 * @throws NoIDExistsException The id being requested doesn't even exist
+	 * @throws NoHeadException The current head of an item cannot be found (THIS SHOULD NOT HAPPEN)
+	 * @throws SQLException There may be an operational/syntax error. This may happen because an error occurred restoring the old head (SHOULD NOT HAPPEN THOUGH)
 	 */
-	public void revert (String tableName, int uniqueId, int newHeadRevId) throws NoRevisionExistsException {
+	public void revert (String tableName, int uniqueId, String idColumn, int newHeadRevId, String revIdColumn, String headMarkerColumn) throws NoRevisionExistsException, NoIDExistsException, SQLException, NoHeadException {
+		//get the old head id in case it fails later
+		int formerHeadRevId = getHeadRevId(tableName, uniqueId, idColumn, revIdColumn, headMarkerColumn);
 		
+		//convert all head markers of the entries under this id to false, just as a precaution
+		String whereCondition = tableName + "." + idColumn + " = " + uniqueId;
+		HashMap<String, Integer> values = new HashMap<String, Integer>();
+		values.put(headMarkerColumn, FALSE);
+		Log.debugMsg(TAG, "Converting all head markers to false for id " + uniqueId);
+		try {
+			this.update(tableName, values, whereCondition);
+		} catch (SQLException e) {
+			throw new NoIDExistsException();
+		}
+		
+		//find the entry with newHeadRevId as the entry under idColumn and mark headMarkerColumn as TRUE
+		whereCondition.concat(" AND " + revIdColumn + " = " + newHeadRevId);
+		values.clear();
+		values.put(headMarkerColumn, TRUE);
+		Log.debugMsg(TAG, "Marking new head revision");
+		try {
+			this.update(tableName, values, whereCondition);
+		} catch (SQLException e) {
+			//re-set the head to the former head revision
+			whereCondition = tableName + "." + idColumn + " = " + uniqueId + " AND " + revIdColumn + " = " + formerHeadRevId;
+			this.update(tableName, values, whereCondition);
+			throw new NoRevisionExistsException();
+		}
 	}
 	
-	public ResultSet retrieveWithFilter (String filter, String tableName) {
+	/**Retrieves records from a table with a filter
+	 * 
+	 * @param filter The string filter that is compared to every column specified in the columns parameter
+	 * @param tableName The name of the table to be looked up
+	 * @param columns The columns of the table that will be searched using the filter
+	 * @return a ResultSet consisting of all rows that fit the filter; returns null if the columns parameter is null
+	 * @throws SQLException if an operational/syntax error occurred...
+	 */
+	public ResultSet retrieveWithFilter (String filter, String tableName, String[] columns) throws SQLException {
+		StringBuilder whereCondition = new StringBuilder();
+		if (columns != null) {
+			for (int ctr = 0; ctr < columns.length; ctr++) {
+				whereCondition.append(tableName + "." + columns[ctr] + " = " + "'%" + filter + "%'");
+				if (ctr < columns.length - 1) {
+					whereCondition.append(" OR ");
+				}
+			}
+			Log.debugMsg(TAG, whereCondition.toString());
+			return query(false, null, tableName, whereCondition.toString(), null, null, null);
+		}
+		else return null;
 		
 	}
 	
