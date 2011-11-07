@@ -12,6 +12,9 @@ import com.apo.mysql.exception.DatabaseNotFoundException;
 
 public class DBOperator {
 	
+	public static final int TRUE = 1;
+	public static final int FALSE = 0;
+	
 	protected final String TAG = this.getClass().getCanonicalName();
 	
 	/**Server object that the operator will use to execute CRUD actions**/

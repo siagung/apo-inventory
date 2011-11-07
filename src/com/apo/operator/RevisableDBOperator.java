@@ -3,6 +3,7 @@ package com.apo.operator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.apo.debug.Log;
@@ -14,6 +15,19 @@ import com.apo.operator.exception.NoIDExistsException;
 import com.apo.operator.exception.NoRevisionExistsException;
 import com.apo.operator.exception.UnmarkedDeleteException;
 
+/**If you have a revisable database of a certain design, you can use this class.
+ * 
+ * Table design features: 
+ * * has a HEAD column that accepts 0 (false) or 1 (true) - HEAD marks the current "official" copy of an entry; think Version Control
+ * * has a deleted marker column that accepts 0 (false) or 1 (true) - Deleted marks whether a user has chosen to non-destructively delete an entry; this is applied to all revisions of an entry with markDelete()
+ * * has a revision id column and an item id column
+ * 
+ * While the DBOperator methods update(), insert() and delete() are available to you, use them with caution. Better yet, don't.
+ * query() is safe to use.
+ * 
+ * @author Kevin Panuelos
+ *
+ */
 public class RevisableDBOperator extends DBOperator {
 		
 	public RevisableDBOperator(String username, String password, String url, String dbName) throws DatabaseNotFoundException, SQLException {
@@ -30,69 +44,210 @@ public class RevisableDBOperator extends DBOperator {
 	 * deleted fields into the Map of values 
 	 * 
 	 * @param tableName The name of the table where you'll insert the new item
-	 * @param values The Map (key-value pair) of pertinent values for the specific table
+	 * @param idColumn The name of the column that holds the entry ids
+	 * @param revIdColumn The name of the column that holds the revision ids
+	 * @param headColumn The name of the column that holds the head marker
+	 * @param deleteMarkerColumn The name of the column that holds the delete marker
+	 * @param values The Map (key-value pair) of pertinent values for the specific table; the column name is the key, the value is the corresponding value to the column name
 	 * @throws SQLException Whenever a conflict arises/SQL operation failure
 	 * @throws InvalidColumnsException Whenever the revision id, item id, head or deleted fields are in the map of values, this is thrown. Perhaps you were thinking of doing a different operation if you encounter this.
 	 */
-	public void newItem (String tableName, Map values) throws SQLException, InvalidColumnsException {
+	public void newItem (String tableName, String idColumn, String revIdColumn, String headColumn, String deleteMarkerColumn, Map values) throws SQLException, InvalidColumnsException, NoIDExistsException {
 		//check if the keySet has revId, itemId, head and deleted fields, then throw an InvalidColumnsException if at least one of them exists
+		if (this.hasIllegalKeys(values, idColumn, revIdColumn, headColumn, deleteMarkerColumn)) {
+			throw new InvalidColumnsException();
+		}
 		//check the table for the max ID number and add 1 to it
-		//int newId = getMax(tableName, id);
+		int newId;
+		try {
+			Log.debugMsg(TAG, "Let's see if the table has IDs already and get the largest one");
+			newId = this.getMaxId(tableName, idColumn) + 1;
+		}
+		catch (NoIDExistsException ex) {
+			Log.debugMsg(TAG, "No, it seems that the table doesn't have IDs yet, but don't worry, there's a first time for everything.");
+			newId = 1;
+		}
+		values.put(idColumn, newId);
 		//assign revision number to 1
+		values.put(revIdColumn, 1);
 		//assign the revision to head
-		//insert the revision number, id number, and head fields into the Map and insert whole thing into tableName
-		
+		values.put(headColumn, TRUE);
+		//and just to be sure, set Delete marker to false
+		values.put(deleteMarkerColumn, FALSE);
+		//insert whole thing into tableName
+		this.insert(tableName, values);
 	}
+	
 	
 	/**When creating a new revision of an existing item, don't put in the revision id,
 	 * item id, head and deleted fields into the Map of values
 	 * 
 	 * @param tableName The name of the table where you'll insert the new item
 	 * @param uniqueId The unique id of the item to be made a new revision of
-	 * @param values The Map (key-value pair) of pertinent values for a specific table
+	 * @param idColumn The name of the column holding the unique ids
+	 * @param revIdColumn The name of the column holding the revision ids
+	 * @param headColumn The name of the column holding the head status
+	 * @param deletedColumn The name of the column holding the deleted marker status
+	 * @param values The Map (key-value pair) of pertinent values for a specific table; key are column names, values are column values
 	 * @return whether the operation was successful or not
 	 * @throws NoIDExistsException No id exists for that table
 	 * @throws NoHeadException No head exists for that id (this should not happen!)
 	 * @throws InvalidColumnsException When the revision id, item id, head or deleted fields are put in the Map of values, this is thrown.
+	 * @throws SQLException There may be something wrong operationally in the SQL syntax/server
+	 * @throws NoRevisionExistsException The revision you're looking for may not exist (in this case, the current HEAD revision that will be set to false)
 	 */
-	public boolean newRevision (String tableName, int uniqueId, Map values) throws NoIDExistsException, NoHeadException, InvalidColumnsException {
+	public boolean newRevision (String tableName, int uniqueId, String idColumn, String revIdColumn, String headColumn, String deletedColumn, Map values) throws NoIDExistsException, NoHeadException, InvalidColumnsException, SQLException, NoRevisionExistsException {
+		
+		//check for invalid keys
+		if (this.hasIllegalKeys(values, revIdColumn, idColumn, headColumn, deletedColumn)) {
+			Log.errorMsg(TAG, "Y U PUT " + headColumn + ", " + idColumn + " OR " + revIdColumn + " COLUMNS TO VALUES PARAMETER?!");
+			throw new InvalidColumnsException();
+		}
+		
 		//check the table if the uniqueId exists, throw NoIDExistsException if the ID cannot be found
-		//query for the HEAD and update() that value to false, if no head is found to be true, throw NoHeadException
-		//check the table for the max revId number and add 1 to it
-		//int newRevId = getMax(
-		//insert the whole thing into tableName
+		if (hasId(tableName, uniqueId, idColumn)) {
+			//query for the HEAD and update() that value to false, if no head is found to be true, throw NoHeadException
+			HashMap<String, Integer> headReset = new HashMap<String, Integer>();
+			headReset.put(headColumn, FALSE);
+			headReset.put(deletedColumn, FALSE);
+			try {
+				this.update(tableName, headReset, tableName + "." + headColumn + " = " + TRUE);
+			}
+			catch (SQLException ex) {
+				throw new NoHeadException();
+			}
+			
+			//check the table for the max revId number and add 1 to it
+			int newRevId = this.getMaxId(tableName, idColumn) + 1;
+			
+			//put the uniqueId, new revId and head values to the values map
+			values.put(idColumn, uniqueId);
+			values.put(revIdColumn, newRevId);
+			values.put(headColumn, TRUE);
+			
+			//insert the whole thing into tableName
+			return this.insert(tableName, values);
+		}
+		else {
+			throw new NoIDExistsException();
+		}
+				
+		
+	}
+	
+	/**Looks up values Map for "illegal keys" as dictated by the illegalKeys parameter
+	 * 
+	 * @param values Key-value pair whose keys will be inspected
+	 * @param illegalKeys The "illegal keys" that should not be present in the values Map
+	 * @return true if there is at least one illegal key in the map of values, false if there are none
+	 */
+	private boolean hasIllegalKeys (Map values, Object... illegalKeys) {
+		for (Object key : illegalKeys) {
+			if (values.containsKey(key)) {
+				Log.debugMsg(TAG, "Found illegal keys");
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**Check if a certain id's records is marked for deletion
 	 * 
 	 * @param tableName the name of the table to be looked up
 	 * @param uniqueId the unique id tied to records that are to be checked
-	 * @param deleteMarkColumn the name of the deletion marker column (ie, a marker in the table that helps determine whether it has been marked for deletion (a value of 'true') or not ('false')
+	 * @param idColumn the label of the id column for this table
+	 * @param deleteMarkColumn the name of the deletion marker column (ie, a marker in the table that helps determine whether it has been marked for deletion (a value of 'true' or 1) or not ('false' or 0)
 	 * @return whether the records associated with the uniqueId have been marked for deletion
+	 * @throws InvalidColumnsException The columns were not found in this table
+	 * @throws NoIDExistsException There is no id that fits the uniqueId parameter
+	 * @throws SQLException Something's wrong with the server connection/columns/where condition/syntax
 	 */
-	public boolean isMarked (String tableName, int uniqueId, String deleteMarkColumn) {
-		
-	}
+	public boolean isMarked (String tableName, int uniqueId, String idColumn, String deleteMarkColumn) throws InvalidColumnsException, NoIDExistsException, SQLException {
+		String whereCondition = tableName + "." + idColumn + " = " + uniqueId;
+		//SELECT tableName.deleteMarkColumn FROM tableName WHERE tableName.idColumn = uniqueId
+		ResultSet result = query(false, new String[] {tableName + "." + deleteMarkColumn}, tableName, whereCondition, null, null, null);
+		if (result.first()) {
+			try {
+				if (result.getBoolean(deleteMarkColumn)) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			catch (SQLException ex) {
+				throw new InvalidColumnsException();
+			}
+		}
+		else {
+			throw new NoIDExistsException();
+		}
+	}	
 	
 	/**Mark a certain id for deletion (but not totally delete the entry containing the uniqueId; non-destructive "deletion")
 	 * 
 	 * @param tableName The name of the table to be looked up
 	 * @param uniqueId The unique id that points to record(s) to be marked for deletion
+	 * @param idColumn The name of the id column that holds the ids
+	 * @param deleteMarkerColumn The name of the column holding the 'deleted' status markers
+	 * @throws SQLException Operational/Syntax error in SQL backend
+	 * @throws NoIDExistsException The ID does not exist
 	 */
-	public void markDelete (String tableName, int uniqueId) {
+	public void markDelete (String tableName, int uniqueId, String idColumn, String deleteMarkerColumn) throws SQLException, NoIDExistsException {
+		String whereCondition = tableName + "." + idColumn + " = " + uniqueId;
+		Log.debugMsg(TAG, "Checking if this id exists in the table...");
+		if (this.hasId(tableName, uniqueId, idColumn)) {
+			Log.debugMsg(TAG, "Id is available. Commencing marking...");
+			Log.debugMsg(TAG, "Packaging new delete property to HashMap");
+			HashMap<String, Integer> deleteMarker = new HashMap<String, Integer>();
+			deleteMarker.put(deleteMarkerColumn, TRUE);
+			Log.debugMsg(TAG, "Marking entries...");
+			this.update(tableName, deleteMarker, whereCondition);
+		}
+		else {
+			throw new NoIDExistsException();
+		}
 		
 	}
 	
 	/**Really (destructively) delete entries containing a certain unique id in a table; if the entries aren't marked for
-	 * deletion, an exception is returned, but if the table with the record to be deleted doesn't even have a "deleted" column,
-	 * the operation goes as expected.
+	 * deletion, an exception is returned.
 	 * 
 	 * @param tableName The name of the table to be looked up
 	 * @param uniqueId The unique id that points to the record(s) to be deleted permanently
-	 * @throws UnmarkedDeleteException thrown when the records you are trying to delete are not marked for deletion; however, absence of a "deleted" field in a table will not be cause for throwing this exception (the operation will proceed)
+	 * @param idColumn The name of the column that holds the id
+	 * @param deleteMarkerColumn The name of the column that holds the delete marker; leaving this null will still throw an UnMarkedDeleteException
+	 * @throws UnmarkedDeleteException thrown when the records you are trying to delete are not marked for deletion
+	 * @throws NoIDExistsException the id does not exist
+	 * @throws SQLException Operational/syntax error in SQL backend
+	 * @throws InvalidColumnsException The columns that are being looked up doesn't apply to this table
 	 */
-	public void delete (String tableName, int uniqueId) throws UnmarkedDeleteException {
-		
+	public void deleteMarked (String tableName, int uniqueId, String idColumn, String deleteMarkerColumn) throws UnmarkedDeleteException, NoIDExistsException, InvalidColumnsException, SQLException {
+		//check if the deleted markers are set to true
+		String whereCondition = tableName + "." + idColumn + " = " + uniqueId;
+		Log.debugMsg(TAG, "Checking if the deleted marker is set to true...");
+		if (this.isMarked(tableName, uniqueId, idColumn, deleteMarkerColumn)) {
+			Log.debugMsg(TAG, "Commencing deletion");
+			this.delete(tableName, whereCondition);
+		}
+		else {
+			Log.errorMsg(TAG, "It seems the entry hasn't been marked for deletion. Cancelling deletion...");
+			throw new UnmarkedDeleteException();
+		}
+	}
+	
+	/**Deletes revisions tied to an id that aren't marked HEAD
+	 * 
+	 * @param tableName The table to be looked up
+	 * @param uniqueId The id that is tied to the revisions
+	 * @param idColumn The column name that holds the ids
+	 * @param headMarkerColumn The column name that holds the HEAD indicator
+	 * @throws SQLException There must have been an operational error/syntax error
+	 */
+	public void deleteNonHeadRevisions (String tableName, int uniqueId, String idColumn, String headMarkerColumn) throws SQLException {
+		String whereCondition = tableName + "." + idColumn + " = " + uniqueId + " AND " + tableName + "." + headMarkerColumn + " = " + FALSE;
+		Log.debugMsg(TAG, "Deleting non-head revisions...");
+		this.delete(tableName, whereCondition);
 	}
 	
 	/**Re-assigns a new HEAD record linked to a unique id
@@ -137,6 +292,7 @@ public class RevisableDBOperator extends DBOperator {
 		int headRevId = this.getHeadRevId(tableName, uniqueId, idColumn, revIdColumn, headColumn);
 		//SELECT * FROM tableName WHERE tableName.idColumn = uniqueId AND tableName.revIdColumn = headRevId;
 		String whereCondition = tableName + "." + idColumn + " = " + uniqueId + " AND " + tableName + "." + revIdColumn + " = " + headRevId;
+		Log.debugMsg(TAG, "Retrieving the head for this id...");
 		return query(false, null, tableName, whereCondition, null, null, null);
 	}
 	
@@ -153,6 +309,7 @@ public class RevisableDBOperator extends DBOperator {
 	public ResultSet retrieveRevisionInfo (String tableName, int uniqueId, String idColumn, int revId, String revIdColumn) throws SQLException {
 		//SELECT * FROM tableName WHERE tableName.idColumn = uniqueId AND tableName.revIdColumn = revId
 		String whereCondition = tableName + "." + idColumn + " = " + uniqueId + " AND " + tableName + "." + revIdColumn + " = " + revIdColumn;
+		Log.debugMsg(TAG, "Retrieving revision " + revId + " for this id.");
 		return query(false, null, tableName, whereCondition, null, null, null);
 	}
 	
@@ -166,16 +323,19 @@ public class RevisableDBOperator extends DBOperator {
 	 */
 	protected boolean hasId (String tableName, int uniqueId, String idColumn) throws SQLException {
 		String whereCondition = tableName + "." + idColumn + " = " + uniqueId;
-		ResultSet result = query(false, new String[] {idColumn}, tableName, whereCondition, null, null, null);
+		ResultSet result = query(false, new String[] {tableName + "." + idColumn}, tableName, whereCondition, null, null, null);
 		if (result.first()) {
 			if (result.getInt(idColumn) == uniqueId) {
+				Log.debugMsg(TAG, "Yes, there is an id");
 				return true;
 			}
 			else {
+				Log.debugMsg(TAG, "No, the id doesn't exist.");
 				return false;
 			}
 		}
 		else {
+			Log.debugMsg(TAG, "No results at all.");
 			return false;
 		}
 	}
@@ -192,11 +352,14 @@ public class RevisableDBOperator extends DBOperator {
 		Statement request = db.getStatement();
 		//SELECT MAX(tableName.idColumn) FROM tableName;
 		String command = "SELECT MAX(" + tableName + "." + idColumn + ") FROM " + tableName + ";";
+		Log.debugMsg(TAG, "Retrieving max id");
 		ResultSet result = request.executeQuery(command);
 		if (result.first()) {
+			Log.debugMsg(TAG, "Looks like we have a result... returning max id");
 			return result.getInt(idColumn);
 		}
 		else {
+			Log.debugMsg(TAG, "Looks like the ID doesn't exist");
 			throw new NoIDExistsException();
 		}
 	}
@@ -248,8 +411,8 @@ public class RevisableDBOperator extends DBOperator {
 	 */
 	protected int getHeadRevId (String tableName, int id, String idColumn, String revIdColumn, String headColumn) throws SQLException, NoHeadException, NoRevisionExistsException {
 		//SELECT tableName.revIdColumnName FROM tableName WHERE headColumn='true'
-		String whereCondition = headColumn + " = " + "'" + "true" + "'";
-		ResultSet result = this.query(false, new String[] {revIdColumn}, tableName, whereCondition, null, null, null);
+		String whereCondition = headColumn + " = " + TRUE;
+		ResultSet result = this.query(false, new String[] {tableName + "." + revIdColumn}, tableName, whereCondition, null, null, null);
 		Log.debugMsg(TAG, "Query success!");
 		if (result.first()) {
 			try {
