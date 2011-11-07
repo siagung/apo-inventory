@@ -261,6 +261,10 @@ public class RevisableDBOperator extends DBOperator {
 		
 	}
 	
+	public ResultSet retrieveWithFilter (String filter, String tableName) {
+		
+	}
+	
 	/**Convenience method for retrieveHeadInfo(); retrieves the latest edition of a piece of information
 	 * 
 	 * @param tableName the table name to be looked up
