@@ -136,7 +136,7 @@ public class DBOperator {
     /**Queries a table depending on the conditions and constraints that are passed through the arguments
      *
      * @param distinct Set to true to return distinct column values of the selected columns
-     * @param selectColumns An array of columns that will be a constraint to what are returned in the ResultSet
+     * @param selectColumns An array of columns that will be a constraint to what are returned in the ResultSet; putting null will retrieve all columns
      * @param fromTable The source table where the data can be found
      * @param where The where clause that constrains the results that are returned
      * @param groupBy Aggregate columns with the same values
@@ -189,15 +189,5 @@ public class DBOperator {
         System.out.println(querySQL.toString());
         return queryStatement.executeQuery(querySQL.toString());
     }
-    
-    /**Returns the maximum number of an id column in a table
-	 * 
-	 * @param tableName The table that will be looked up
-	 * @param idColumn The column of the table that will contain integers; the largest number itself is returned
-	 * @return
-	 */
-	protected int getMaxId (String tableName, String idColumn) {
-		
-	}
 	
 }

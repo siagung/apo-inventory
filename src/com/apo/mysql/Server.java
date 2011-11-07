@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.apo.debug.Log;
 import com.apo.mysql.exception.DatabaseNotFoundException;
 
 /**Establishes a connection to server; doesn't store user name and password, just server URL**/
@@ -51,7 +52,7 @@ public class Server {
 			}
 			
 			establishConnection(this.url, username, password);
-			System.out.println(TAG + "Connected to a specific database.");
+			Log.debugMsg(TAG, "Connected to a specific database.");
 		}
 		
 		else {
@@ -89,12 +90,12 @@ public class Server {
 		   this.serverConnection.createStatement().execute("USE " + dbName);
 		}
 		else {
-			System.out.println(TAG + "Database change operation: Nothing happened.");
+			Log.debugMsg(TAG, "Database change operation: Nothing happened.");
 			return;
 		}
-		System.out.println("Database switch success!");
+		Log.debugMsg(TAG, "Database switch success!");
 	} catch (SQLException e) {
-		System.out.println("The database name you specified may not exist.");
+		Log.errorMsg(TAG, "The database name you specified may not exist.");
 		e.printStackTrace();
 	}
    }
@@ -124,7 +125,7 @@ public class Server {
 	   rs.close();
 	   serverConnection.close();
 	   if (availableTables.contains(dbName)) {
-		   System.out.println(TAG + "Found the database");
+		   Log.debugMsg(TAG, "Found the database");
 		   return true;
 	   }
 	   
@@ -140,27 +141,27 @@ public class Server {
     private void establishConnection(String url, String username, String password) {
     	try {
     		Class.forName("com.mysql.jdbc.Driver").newInstance();
-    		System.out.println(TAG + "Class for name successful");
+    		Log.debugMsg(TAG, "Class for name successful");
     		serverConnection = DriverManager.getConnection(url, username, password);
-    		System.out.println(TAG + "Connection successful");
+    		Log.debugMsg(TAG, "Connection successful");
     		this.connectionStatus = true;
-    		System.out.println(TAG + "DB connection established");
+    		Log.debugMsg(TAG, "DB connection established");
     		fireOnConnectedEvent();
     	}
     	catch (SQLException ex) {
-    		System.err.println(TAG + "Can't connect. User name, password, or url may be incorrect.");
+    		Log.errorMsg(TAG, "Can't connect. User name, password, or url may be incorrect.");
     		this.connectionStatus = false;
     		ex.printStackTrace();
     	} catch (InstantiationException e) {
-    		System.err.println(TAG + "Instantiation exception");
+    		Log.errorMsg(TAG, "Instantiation exception");
 			this.connectionStatus = false;
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			System.err.println(TAG + "Illegal Access");
+			Log.errorMsg(TAG, "Illegal Access");
 			this.connectionStatus = false;
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			System.err.println(TAG + "Class Not Found");
+			Log.errorMsg(TAG, "Class Not Found");
 			this.connectionStatus = false;
 			e.printStackTrace();
 		}
@@ -204,6 +205,15 @@ public class Server {
 	 */
 	public Connection getConnection() {
 		return serverConnection;
+	}
+	
+	/**Returns a statement that can be executed on the MySQL server connection
+	 * 
+	 * @return the Statement object that can be executed on the MySQL Server
+	 * @throws SQLException there may be something wrong with the server connection (can't make a statement without a working connection!)
+	 */
+	public Statement getStatement() throws SQLException {
+		return serverConnection.createStatement();
 	}
 	
 	/**Parse passwords from char array to String
