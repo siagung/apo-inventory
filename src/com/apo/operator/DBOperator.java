@@ -1,14 +1,17 @@
 package com.apo.operator;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.apo.mysql.Server;
 import com.apo.mysql.exception.DatabaseNotFoundException;
+
 
 public class DBOperator {
 	
@@ -193,4 +196,27 @@ public class DBOperator {
         return queryStatement.executeQuery(querySQL.toString());
     }
 	
+    /**Puts information from a ResultSet object into a Map
+     * 
+     * @param result The result of a query that is to be packaged as a HashMap object
+     * @return HashMap representation of a ResultSet object; could return multiple HashMaps for multiple entries; null if there are no entries in the ResultSet
+     * @throws SQLException something wrong with the syntax/server may also be down
+     */
+    public ArrayList<HashMap> copyInformation (ResultSet result) throws SQLException {
+    	ResultSetMetaData metadata = result.getMetaData();
+    	int columnCount = metadata.getColumnCount();
+    	ArrayList<HashMap> information = new ArrayList<HashMap>();
+    	while (result.next()) {
+    		HashMap entry = new HashMap();
+    		for (int ctr = 1; ctr <= columnCount; ctr++) {
+    			entry.put(metadata.getColumnName(ctr), result.getObject(ctr));
+    		}	
+    		information.add(entry);
+    	}
+    	if (information.isEmpty()) {
+    		return null;
+    	}
+    	return information;
+    }
+    
 }

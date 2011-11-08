@@ -1,6 +1,7 @@
 package com.apo.operator;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import com.apo.operator.exception.UnmarkedDeleteException;
  * * has a deleted marker column that accepts 0 (false) or 1 (true) - Deleted marks whether a user has chosen to non-destructively delete an entry; this is applied to all revisions of an entry with markDelete()
  * * has a revision id column and an item id column
  * 
- * While the DBOperator methods update(), insert() and delete() are available to you, use them with caution. Better yet, don't.
+ * While the DBOperator methods update(), insert() and delete() are available to you, use them with caution. Better yet, don't if the table doesn't seem to apply.
  * query() is safe to use.
  * 
  * @author Kevin Panuelos
@@ -49,10 +50,11 @@ public class RevisableDBOperator extends DBOperator {
 	 * @param headColumn The name of the column that holds the head marker
 	 * @param deleteMarkerColumn The name of the column that holds the delete marker
 	 * @param values The Map (key-value pair) of pertinent values for the specific table; the column name is the key, the value is the corresponding value to the column name
+	 * @return returns the id number that was created
 	 * @throws SQLException Whenever a conflict arises/SQL operation failure
 	 * @throws InvalidColumnsException Whenever the revision id, item id, head or deleted fields are in the map of values, this is thrown. Perhaps you were thinking of doing a different operation if you encounter this.
 	 */
-	public void newItem (String tableName, String idColumn, String revIdColumn, String headColumn, String deleteMarkerColumn, Map values) throws SQLException, InvalidColumnsException, NoIDExistsException {
+	public int newItem (String tableName, String idColumn, String revIdColumn, String headColumn, String deleteMarkerColumn, Map values) throws SQLException, InvalidColumnsException, NoIDExistsException {
 		//check if the keySet has revId, itemId, head and deleted fields, then throw an InvalidColumnsException if at least one of them exists
 		if (this.hasIllegalKeys(values, idColumn, revIdColumn, headColumn, deleteMarkerColumn)) {
 			throw new InvalidColumnsException();
@@ -76,6 +78,8 @@ public class RevisableDBOperator extends DBOperator {
 		values.put(deleteMarkerColumn, FALSE);
 		//insert whole thing into tableName
 		this.insert(tableName, values);
+		
+		return newId;
 	}
 	
 	
@@ -102,6 +106,19 @@ public class RevisableDBOperator extends DBOperator {
 		if (this.hasIllegalKeys(values, revIdColumn, idColumn, headColumn, deletedColumn)) {
 			Log.errorMsg(TAG, "Y U PUT " + headColumn + ", " + idColumn + " OR " + revIdColumn + " COLUMNS TO VALUES PARAMETER?!");
 			throw new InvalidColumnsException();
+		}
+		
+		//get the original data (in case there are missing columns in the HashMap given)
+		Log.debugMsg(TAG, "Retrieving original copy in case of missing columns...");
+		HashMap originalValues = this.copyHeadInformation(tableName, uniqueId, idColumn, revIdColumn, headColumn);
+		for (Object column : originalValues.keySet()) {
+			if (values.containsKey(column)) {
+				continue;
+			}
+			else if (!values.containsKey(column) && (column.toString().equalsIgnoreCase(idColumn) || column.toString().equalsIgnoreCase(revIdColumn) || column.toString().equalsIgnoreCase(headColumn))) {
+				Log.debugMsg(TAG, "Unspecified column " + column + " found. Adding original value...");
+				values.put(column, originalValues.get(column));
+			}
 		}
 		
 		//check the table if the uniqueId exists, throw NoIDExistsException if the ID cannot be found
@@ -132,6 +149,41 @@ public class RevisableDBOperator extends DBOperator {
 			throw new NoIDExistsException();
 		}
 				
+		
+	}
+	
+	/**Copies the "information" or key-value pairs for each column that are present in the current (HEAD) revision of a record
+	 * 
+	 * @param tableName The name of the table to be looked up
+	 * @param id The identifier of the record to be copied
+	 * @param idColumn The label of the column holding the id
+	 * @param revIdColumn The label of the column holding the revision ids
+	 * @param headColumn The label of the column holding the head marker
+	 * @return The HashMap representation of the HEAD revision of a record; null if no results come up
+	 * @throws NoIDExistsException The ID does not seem to exist/cannot be found
+	 * @throws NoRevisionExistsException The revision number specified does not seem to exist
+	 * @throws SQLException There may be something wrong with the syntax/operational error
+	 * @throws NoHeadException There may be no Head available for this series of records (which should NOT happen)
+	 */
+	protected HashMap copyHeadInformation (String tableName, int id, String idColumn, String revIdColumn, String headColumn) throws NoIDExistsException, NoRevisionExistsException, SQLException, NoHeadException {
+		ResultSet result = this.retrieveHeadInfo(tableName, id, idColumn, revIdColumn, headColumn);
+		Log.debugMsg(TAG, "Retrieving head information for copying...");
+		ResultSetMetaData metadata = result.getMetaData();
+		HashMap map = new HashMap();
+		if (result.next()) {
+			int columns = metadata.getColumnCount();
+			int ctr = 1;
+			Log.debugMsg(TAG, "Copying existing data");
+			while (ctr <= columns) {
+				String columnName = result.getMetaData().getColumnName(ctr);
+				map.put(columnName, result.getObject(ctr));
+				ctr++;
+			}
+			Log.debugMsg(TAG, "HashMap of values created.");
+			return map;
+		}
+		
+		return null;
 		
 	}
 	
@@ -368,6 +420,7 @@ public class RevisableDBOperator extends DBOperator {
 		Log.debugMsg(TAG, "Retrieving revision " + revId + " for this id.");
 		return query(false, null, tableName, whereCondition, null, null, null);
 	}
+	
 	
 	/**Determines whether a specific id number exists for a table's id column
 	 * 	
