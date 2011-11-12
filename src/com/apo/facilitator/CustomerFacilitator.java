@@ -6,23 +6,17 @@ import javax.swing.table.TableModel;
 
 import com.apo.operator.RevisableDBOperator;
 
-public class ProductFacilitator extends Facilitator {
+public class CustomerFacilitator extends Facilitator {
 
-	public static final String TABLE_NAME = "product";
+	public static final String TABLE_NAME = "customer";
 	
 	public static enum Columns {
-		PRODUCT_ID("product_id", 0),
+		CUSTOMER_ID("customer_id", 0),
 		REVISION_ID("revision_id", 1),
 		HEAD("head", 2),
 		DELETED("deleted", 3),
-		PRODUCT_NAME("product_name", 4),
-		MODEL("model", 5),
-		BRAND("brand", 6),
-		PRODUCT_DESC("product_desc", 7),
-		CATEGORY_ID("category_id", 8),
-		PRICE("srprice", 9),
-		STOCK("stock", 10),
-		UNIT("unit", 11);
+		NAME("name", 4),
+		REPRESENTATIVE("representative", 5);
 		
 		private final String columnName;
 		private final int columnIndex;
@@ -40,9 +34,10 @@ public class ProductFacilitator extends Facilitator {
 			return this.columnIndex;
 		}
 	}
-
-	public ProductFacilitator(RevisableDBOperator operator) {
+	
+	public CustomerFacilitator(RevisableDBOperator operator) {
 		super(operator);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -65,7 +60,7 @@ public class ProductFacilitator extends Facilitator {
 
 	@Override
 	public String getMainTableName() {
-		return ProductFacilitator.TABLE_NAME;
+		return CustomerFacilitator.TABLE_NAME;
 	}
 
 }

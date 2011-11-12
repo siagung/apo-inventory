@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.apo.debug.Log;
 import com.apo.mysql.Server;
 import com.apo.mysql.exception.DatabaseNotFoundException;
 
@@ -230,5 +231,21 @@ public class DBOperator {
     	ArrayList<HashMap> rowMaps = getMapOfRows (result);
     	return rowMaps.get(0);
     }
+    
+    protected ArrayList<String> getTableColumns (String tableName) {
+		ArrayList<String> columns = new ArrayList<String>();
+		try {
+			ResultSet genericQuery = query(false, null, tableName, null, null, null, null);
+			int columnCount = genericQuery.getMetaData().getColumnCount();
+			for (int ctr = 0; ctr < columnCount; ctr++) {
+				columns.add(genericQuery.getMetaData().getColumnName(ctr));
+			}
+		}
+		catch(SQLException ex) {
+			Log.errorMsg(this, "Potentially faulty connection to SQL server is present.");
+			ex.printStackTrace();
+		}
+		return columns;
+	}
     
 }

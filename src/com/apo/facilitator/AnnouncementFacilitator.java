@@ -6,23 +6,34 @@ import javax.swing.table.TableModel;
 
 import com.apo.operator.RevisableDBOperator;
 
-public class ProductFacilitator extends Facilitator {
+public class AnnouncementFacilitator extends Facilitator {
 
-	public static final String TABLE_NAME = "product";
+	public static final String TABLE_NAME = "announcement";
+	
+	public static enum Types {
+		CUSTOM(1),
+		ADDED(2),
+		EDITED(3),
+		REVERTED(4),
+		DELETED(5);
+		
+		private final int columnIndex;
+		Types (int columnIndex) {
+			this.columnIndex = columnIndex;
+		}
+		
+		public int getColumnIndex () {
+			return columnIndex;
+		}
+		
+	}
 	
 	public static enum Columns {
-		PRODUCT_ID("product_id", 0),
-		REVISION_ID("revision_id", 1),
-		HEAD("head", 2),
-		DELETED("deleted", 3),
-		PRODUCT_NAME("product_name", 4),
-		MODEL("model", 5),
-		BRAND("brand", 6),
-		PRODUCT_DESC("product_desc", 7),
-		CATEGORY_ID("category_id", 8),
-		PRICE("srprice", 9),
-		STOCK("stock", 10),
-		UNIT("unit", 11);
+		ANNOUNCE_ID("announce_id", 0),
+		ANNOUNCE_TYPE_ID("announce_type_id", 1),
+		MESSAGE("message", 2),
+		EMPLOYEE_ID("employee_id", 3),
+		ANNOUNCE_DATE("announce_date", 4);
 		
 		private final String columnName;
 		private final int columnIndex;
@@ -40,9 +51,10 @@ public class ProductFacilitator extends Facilitator {
 			return this.columnIndex;
 		}
 	}
-
-	public ProductFacilitator(RevisableDBOperator operator) {
+	
+	public AnnouncementFacilitator(RevisableDBOperator operator) {
 		super(operator);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -65,7 +77,7 @@ public class ProductFacilitator extends Facilitator {
 
 	@Override
 	public String getMainTableName() {
-		return ProductFacilitator.TABLE_NAME;
+		return AnnouncementFacilitator.TABLE_NAME;
 	}
 
 }

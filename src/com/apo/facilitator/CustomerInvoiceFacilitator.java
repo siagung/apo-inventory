@@ -6,23 +6,21 @@ import javax.swing.table.TableModel;
 
 import com.apo.operator.RevisableDBOperator;
 
-public class ProductFacilitator extends Facilitator {
+public class CustomerInvoiceFacilitator extends Facilitator {
 
-	public static final String TABLE_NAME = "product";
+	public static final String TABLE_NAME = "customer_invoice";
 	
 	public static enum Columns {
-		PRODUCT_ID("product_id", 0),
+		INVOICE_ID("invoice_id", 0),
 		REVISION_ID("revision_id", 1),
 		HEAD("head", 2),
 		DELETED("deleted", 3),
-		PRODUCT_NAME("product_name", 4),
-		MODEL("model", 5),
-		BRAND("brand", 6),
-		PRODUCT_DESC("product_desc", 7),
-		CATEGORY_ID("category_id", 8),
-		PRICE("srprice", 9),
-		STOCK("stock", 10),
-		UNIT("unit", 11);
+		CURRENCY("currency", 4),
+		EXCHANGE_RATE("exchange_rate", 5),
+		ORDER_DATE("order_date", 6),
+		EMPLOYEE_ID("employee_id", 7),
+		ORDER_TYPE("order_type", 8),
+		PAYMENT_TERMS("payment_terms", 9);
 		
 		private final String columnName;
 		private final int columnIndex;
@@ -40,9 +38,14 @@ public class ProductFacilitator extends Facilitator {
 			return this.columnIndex;
 		}
 	}
-
-	public ProductFacilitator(RevisableDBOperator operator) {
+	
+	public CustomerInvoiceFacilitator(RevisableDBOperator operator) {
 		super(operator);
+	}
+
+	@Override
+	public String getMainTableName() {
+		return CustomerInvoiceFacilitator.TABLE_NAME;
 	}
 
 	@Override
@@ -61,11 +64,6 @@ public class ProductFacilitator extends Facilitator {
 	public ComboBoxModel getComboBoxModel(String filter) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public String getMainTableName() {
-		return ProductFacilitator.TABLE_NAME;
 	}
 
 }

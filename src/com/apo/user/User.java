@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import com.apo.operator.DBOperator;
 
 /**Contains static methods that can be used to repeatedly reference
- * the currently logged in user; use UserFacilitator (com.apo.facilitator) when interacting
- * with actual user tables
+ * the currently logged in user; use EmployeeFacilitator (com.apo.facilitator) when interacting
+ * with actual user/employee tables
  * 
  * @author Kevin Panuelos
  *

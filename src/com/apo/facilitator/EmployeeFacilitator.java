@@ -6,23 +6,28 @@ import javax.swing.table.TableModel;
 
 import com.apo.operator.RevisableDBOperator;
 
-public class ProductFacilitator extends Facilitator {
+public class EmployeeFacilitator extends Facilitator {
 
-	public static final String TABLE_NAME = "product";
-	
+	public static final String TABLE_NAME = "employee";
+			
 	public static enum Columns {
-		PRODUCT_ID("product_id", 0),
+		EMPLOYEE_ID("product_id", 0),
 		REVISION_ID("revision_id", 1),
 		HEAD("head", 2),
 		DELETED("deleted", 3),
-		PRODUCT_NAME("product_name", 4),
-		MODEL("model", 5),
-		BRAND("brand", 6),
-		PRODUCT_DESC("product_desc", 7),
-		CATEGORY_ID("category_id", 8),
-		PRICE("srprice", 9),
-		STOCK("stock", 10),
-		UNIT("unit", 11);
+		USERNAME("username", 4),
+		PASSWORD("password", 5),
+		USER_TYPE("user_type", 6),
+		LAST_NAME("last_name", 7),
+		FIRST_NAME("first_name", 8),
+		MIDDLE_NAME("middle_name", 9),
+		SSS_ID("sss_id", 10),
+		EMPLOYED_STATUS("employed_status", 11),
+		GENDER("gender", 12),
+		DATE_HIRED("date_hired", 13),
+		DATE_FIRED("date_fired", 14),
+		SECRET_ID("secret_id", 15),
+		SECRET_ANSWER("secret_answer", 16);		
 		
 		private final String columnName;
 		private final int columnIndex;
@@ -40,9 +45,10 @@ public class ProductFacilitator extends Facilitator {
 			return this.columnIndex;
 		}
 	}
-
-	public ProductFacilitator(RevisableDBOperator operator) {
+	
+	public EmployeeFacilitator(RevisableDBOperator operator) {
 		super(operator);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -65,7 +71,7 @@ public class ProductFacilitator extends Facilitator {
 
 	@Override
 	public String getMainTableName() {
-		return ProductFacilitator.TABLE_NAME;
+		return EmployeeFacilitator.TABLE_NAME;
 	}
 
 }
