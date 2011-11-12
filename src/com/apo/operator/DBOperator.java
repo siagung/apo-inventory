@@ -43,8 +43,9 @@ public class DBOperator {
 	 * @param url Customer url used to connect to a remote database/server; can be null to indicate localhost
 	 * @param dbName The name of the database to be connected to; can be null if only server will be used for connection
 	 * @throws DatabaseNotFoundException The database could not be found (bad dbName spelling?)
+	 * @throws SQLException SQL Server may not be operational
 	 */
-	public DBOperator (String username, char[] password, String url, String dbName) throws DatabaseNotFoundException {
+	public DBOperator (String username, char[] password, String url, String dbName) throws DatabaseNotFoundException, SQLException {
 		this.db = new Server (username, password, url, dbName);
 	}
 	/**Initializes the server alongside the operator of the server
@@ -196,13 +197,13 @@ public class DBOperator {
         return queryStatement.executeQuery(querySQL.toString());
     }
 	
-    /**Puts information from a ResultSet object into a Map
+    /**Puts information from a ResultSet object into an ArrayList of Maps
      * 
-     * @param result The result of a query that is to be packaged as a HashMap object
+     * @param result The result of a query that is to be packaged as HashMap objects
      * @return HashMap representation of a ResultSet object; could return multiple HashMaps for multiple entries; null if there are no entries in the ResultSet
      * @throws SQLException something wrong with the syntax/server may also be down
      */
-    public ArrayList<HashMap> copyInformation (ResultSet result) throws SQLException {
+    public ArrayList<HashMap> getMapOfRows (ResultSet result) throws SQLException {
     	ResultSetMetaData metadata = result.getMetaData();
     	int columnCount = metadata.getColumnCount();
     	ArrayList<HashMap> information = new ArrayList<HashMap>();
@@ -217,6 +218,17 @@ public class DBOperator {
     		return null;
     	}
     	return information;
+    }
+    
+    /**Puts information from a ResultSet object into a Map HashMap object; if there are multiple rows in the ResultSet, the first row is returned
+     * 
+     * @param result The result of a query that is to be packaged as a HashMap object
+     * @return The first row of a ResultSet object in the form of a HashMap
+     * @throws SQLException Something is wrong with the syntax/server may also be down
+     */
+    public HashMap getMapOfRow (ResultSet result) throws SQLException {
+    	ArrayList<HashMap> rowMaps = getMapOfRows (result);
+    	return rowMaps.get(0);
     }
     
 }

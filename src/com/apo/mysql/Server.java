@@ -52,7 +52,8 @@ public class Server {
 			}
 			
 			establishConnection(this.url, username, password);
-			Log.debugMsg(TAG, "Connected to a specific database.");
+			Log.debugMsg(TAG, "Connected to database " + dbName);
+			this.dbName = dbName;
 		}
 		
 		else {
@@ -68,16 +69,26 @@ public class Server {
     * @param password The char array representation of the password associated with the user name
     * @param url The URL could be over IP, etc. Follow: [host][,failoverhost...][:port]/[database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]...; leaving the field null will establish the connection to the localhost
     * @param dbName The name of the database to be accessed; leaving this null will enable access to server only
+    * 
 	*/
-   public Server (String username, char[] password, String url, String dbName) {
-	   if (url == null) {
-			this.url = getDefaultUrl(dbName);
-		}
-		else {
-			this.url = getCustomUrl(url, dbName);
-		}
+   public Server (String username, char[] password, String url, String dbName) throws DatabaseNotFoundException, SQLException {
+	   if (dbName == null || (dbName != null || !dbName.equalsIgnoreCase("")) && checkDbExists(url, username, parsePassword(password), dbName)) {
+		   if (url == null) {
+			   this.url = getDefaultUrl(dbName);
+		   }
+		   else {
+			   this.url = getCustomUrl(url, dbName);
+		   }
+		   establishConnection(this.url, username, parsePassword(password));
+		   Log.debugMsg(TAG, "Connected to database " + dbName);
+		   this.dbName = dbName;
+	   }
 	   
-	   establishConnection(this.url, username, parsePassword(password));
+	   else {
+		   throw new DatabaseNotFoundException();
+	   }
+	   
+	   
    }
    
    /**Use this method when you've already established a connection to the MySQL Server, but not any specific database
@@ -94,6 +105,7 @@ public class Server {
 			return;
 		}
 		Log.debugMsg(TAG, "Database switch success!");
+		this.dbName = dbName;
 	} catch (SQLException e) {
 		Log.errorMsg(TAG, "The database name you specified may not exist.");
 		e.printStackTrace();
@@ -109,6 +121,7 @@ public class Server {
     * @throws SQLException user name/password/url is/are invalid
     */
    private boolean checkDbExists(String url, String username, String password, String dbName) throws SQLException {
+	   Log.debugMsg(TAG, "Checking if DB exists...");
 	   ArrayList<String> availableTables = new ArrayList<String>();
 	   if (url!=null) {
 		   establishConnection(getCustomUrl(url, null), username, password);
@@ -117,18 +130,22 @@ public class Server {
 		   establishConnection(getDefaultUrl(null), username, password);
 	   }
 	   DatabaseMetaData dbMeta = this.serverConnection.getMetaData();
+	   Log.debugMsg(TAG, "Got metadata");
 	   ResultSet rs = dbMeta.getCatalogs();
+	   Log.debugMsg(TAG, "Got catalogs");
 	   while (rs.next()) {
-		   String listOfDatabases = rs.getString(rs.getString("TABLE_CAT"));
+		   String listOfDatabases = rs.getString("TABLE_CAT");
 		   availableTables.add(listOfDatabases);
+		   Log.debugMsg(TAG, "Added " + listOfDatabases + " to available tables");
 	   }
 	   rs.close();
 	   serverConnection.close();
+	   Log.debugMsg(TAG, "ResultSet and ServerConnection closed.");
 	   if (availableTables.contains(dbName)) {
 		   Log.debugMsg(TAG, "Found the database");
 		   return true;
 	   }
-	   
+	   Log.debugMsg(TAG, "Database name does not seem to exist.");
 	   return false;
    }
 	
@@ -173,7 +190,11 @@ public class Server {
 	 * @return The url of the connection to localhost + dbName
 	 */
 	private String getDefaultUrl(String dbName) {
-		return URL_PREFIX + "localhost/" + dbName;
+		if (dbName != null) {
+			Log.debugMsg(this, URL_PREFIX+"localhost/"+dbName); 
+			return URL_PREFIX + "localhost/" + dbName;
+		}
+		return URL_PREFIX + "localhost/";
 	}
 	
 	/**Returns a custom url for use with JDBC connector
@@ -183,10 +204,19 @@ public class Server {
 	 * @return custom URL that is re-packaged into a JDBC url
 	 */
 	private String getCustomUrl(String serverUrl, String dbName) {
-		if (!dbName.endsWith("/")) {
-			return URL_PREFIX + serverUrl + "/" + dbName;
+		if (dbName != null) {
+			if (!dbName.endsWith("/")) {
+				Log.debugMsg(this, URL_PREFIX+serverUrl+"/"+dbName);
+				return URL_PREFIX + serverUrl + "/" + dbName;
+			}
+			return URL_PREFIX + serverUrl + dbName;
 		}
-		return URL_PREFIX + serverUrl + dbName;
+		if (!dbName.endsWith("/")) {
+			return URL_PREFIX + serverUrl + "/";
+		}
+		else {
+			return URL_PREFIX + serverUrl;
+		}
 	}
 	
 	/**Disconnects the underlying Connection object of the Server object
@@ -229,6 +259,10 @@ public class Server {
                 /**Each iteration appends the password character into a string**/
        }
        return stringPassword.toString();
+   }
+   
+   public String getSchemaName () {
+	   return this.dbName;
    }
    
    private synchronized void fireOnConnectedEvent () {

@@ -6,6 +6,17 @@ CREATE SCHEMA IF NOT EXISTS `apo_db` DEFAULT CHARACTER SET latin1 ;
 USE `apo_db` ;
 
 -- -----------------------------------------------------
+-- Table `apo_db`.`announcement_type`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `apo_db`.`announcement_type` (
+  `announcement_type_id` INT(11) NOT NULL ,
+  `announcement_type_name` VARCHAR(45) NULL DEFAULT NULL ,
+  PRIMARY KEY (`announcement_type_id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
 -- Table `apo_db`.`secret_question`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `apo_db`.`secret_question` (
@@ -25,6 +36,7 @@ CREATE  TABLE IF NOT EXISTS `apo_db`.`privilege` (
   PRIMARY KEY (`privilege_id`) ,
   UNIQUE INDEX `privilege_id_UNIQUE` (`privilege_id` ASC) )
 ENGINE = InnoDB
+AUTO_INCREMENT = 43
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -34,9 +46,8 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`user_type` (
   `type_name` VARCHAR(25) NOT NULL ,
   `privilege_id` INT(11) NOT NULL ,
-  `privilege_toggle` INT(11) NOT NULL ,
+  `privilege_toggle` INT(11) NOT NULL DEFAULT '0' ,
   PRIMARY KEY (`type_name`, `privilege_id`) ,
-  UNIQUE INDEX `type_name_UNIQUE` (`type_name` ASC) ,
   INDEX `privilege_id` (`privilege_id` ASC) ,
   CONSTRAINT `privilege_id`
     FOREIGN KEY (`privilege_id` )
@@ -84,17 +95,6 @@ DEFAULT CHARACTER SET = latin1;
 
 
 -- -----------------------------------------------------
--- Table `apo_db`.`announcement_type`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `apo_db`.`announcement_type` (
-  `announcement_type_id` INT(11) NOT NULL ,
-  `announcement_type_name` VARCHAR(45) NULL DEFAULT NULL ,
-  PRIMARY KEY (`announcement_type_id`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
 -- Table `apo_db`.`announcement`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `apo_db`.`announcement` (
@@ -102,17 +102,18 @@ CREATE  TABLE IF NOT EXISTS `apo_db`.`announcement` (
   `announce_type_id` INT(11) NOT NULL ,
   `message` TEXT NOT NULL ,
   `employee_id` INT(11) NOT NULL ,
+  `announce_date` DATE NOT NULL ,
   PRIMARY KEY (`announce_id`) ,
   INDEX `doer` (`employee_id` ASC) ,
   INDEX `announcement_type` (`announce_type_id` ASC) ,
-  CONSTRAINT `doer`
-    FOREIGN KEY (`employee_id` )
-    REFERENCES `apo_db`.`employee` (`employee_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `announcement_type`
     FOREIGN KEY (`announce_type_id` )
     REFERENCES `apo_db`.`announcement_type` (`announcement_type_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `doer`
+    FOREIGN KEY (`employee_id` )
+    REFERENCES `apo_db`.`employee` (`employee_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -290,11 +291,12 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_order_payment` (
   `payment_id` INT(11) NOT NULL ,
   `order_id` INT(11) NOT NULL ,
+  `clearing_code` VARCHAR(45) NOT NULL ,
   `mode_of_payment` VARCHAR(10) NOT NULL ,
   `amount_paid` DECIMAL(2,0) NOT NULL ,
+  `check_bank_code` VARCHAR(45) NULL DEFAULT NULL ,
   `check_number` INT(11) NULL DEFAULT NULL ,
   `check_date` DATE NULL DEFAULT NULL ,
-  `check_location` VARCHAR(45) NULL DEFAULT NULL ,
   `date_paid` DATE NOT NULL ,
   PRIMARY KEY (`payment_id`, `order_id`) ,
   INDEX `customer_order_payment` (`order_id` ASC) ,
@@ -423,16 +425,16 @@ CREATE  TABLE IF NOT EXISTS `apo_db`.`supplier_contact` (
   PRIMARY KEY (`supplier_id`, `revision_id`, `kind`, `detail`) ,
   INDEX `supplier_info` (`supplier_id` ASC, `revision_id` ASC) ,
   INDEX `supplier_contact_kind` (`kind` ASC) ,
-  CONSTRAINT `supplier_info`
-    FOREIGN KEY (`supplier_id` , `revision_id` )
-    REFERENCES `apo_db`.`supplier` (`supplier_id` , `revision_id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
   CONSTRAINT `supplier_contact_kind`
     FOREIGN KEY (`kind` )
     REFERENCES `apo_db`.`kind` (`kindName` )
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
+  CONSTRAINT `supplier_info`
+    FOREIGN KEY (`supplier_id` , `revision_id` )
+    REFERENCES `apo_db`.`supplier` (`supplier_id` , `revision_id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
