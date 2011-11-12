@@ -44,7 +44,7 @@ public abstract class Facilitator {
 	public abstract String getMainTableName ();
 	
 	public abstract ListModel getListModel (String filter);
-	public abstract TableModel getTableModel (String filter);
+	public abstract TableModel getTableModel (String filter, String[] columns);
 	public abstract ComboBoxModel getComboBoxModel (String filter);
 	
 	
