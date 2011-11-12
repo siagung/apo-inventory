@@ -92,6 +92,7 @@ public class CreateAPODatabase {
 				e.printStackTrace();
 			}
 		}
+		parser.close();
 	}
 	
 	/**Parse passwords from char array to String
