@@ -1,34 +1,35 @@
 package com.apo.gui.components.lightweight;
 
-import javax.swing.JPanel;
-import javax.swing.BoxLayout;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import javax.swing.ListModel;
-
 import java.awt.Component;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.Box;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
-public class SearchPanel extends JPanel {
+public class SearchComboPanel extends JPanel {
 	private JTextField searchField;
 	private JButton searchButton;
 	private JList resultList;
 	private JLabel itemCountLabel;
+	private JComboBox selector;
 
 	/**
-	 * Creates the search panel.
+	 * Creates the search panel with a combo box in between.
 	 */
-	public SearchPanel() {
+	public SearchComboPanel() {
 		initComponents();
 		searchField.addActionListener(new ActionListener() {
 
@@ -67,6 +68,13 @@ public class SearchPanel extends JPanel {
 	public void setItemCountLabelText(String countText) {
 		this.itemCountLabel.setText(countText);
 	}
+
+	/**
+	 * @return the selector
+	 */
+	public JComboBox getSelector() {
+		return selector;
+	}
 	
 	/**Get the actual panel that contains the details panel inside it**/
 	protected JPanel getPanel () {
@@ -81,9 +89,9 @@ public class SearchPanel extends JPanel {
 		setMinimumSize(new Dimension(230, 277));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-		Component rigidArea = Box.createRigidArea(new Dimension(20, 20));
-		rigidArea.setPreferredSize(new Dimension(20, 10));
-		add(rigidArea);
+		Component topGap = Box.createRigidArea(new Dimension(20, 20));
+		topGap.setPreferredSize(new Dimension(20, 10));
+		add(topGap);
 		
 		JPanel searchInputPanel = new JPanel();
 		searchInputPanel.setMaximumSize(new Dimension(32767, 682));
@@ -118,8 +126,16 @@ public class SearchPanel extends JPanel {
 		horizontalStrut.setPreferredSize(new Dimension(5, 0));
 		searchInputPanel.add(horizontalStrut);
 		
+		Component searchPanelGap = Box.createRigidArea(new Dimension(20, 20));
+		searchPanelGap.setPreferredSize(new Dimension(20, 10));
+		add(searchPanelGap);
+		
+		selector = new JComboBox();
+		selector.setMaximumSize(new Dimension(32767, 808));
+		add(selector);
+		
 		Component inputOutputGap = Box.createRigidArea(new Dimension(20, 20));
-		inputOutputGap.setPreferredSize(new Dimension(20, 15));
+		inputOutputGap.setPreferredSize(new Dimension(20, 10));
 		add(inputOutputGap);
 		
 		JPanel searchOutputPanel = new JPanel();
