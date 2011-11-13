@@ -1,4 +1,4 @@
-package com.apo.gui.components;
+package com.apo.gui.components.lightweight;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -50,8 +50,14 @@ public class DetailsView extends JPanel {
 
 	}
 	
+	/**Get the content area to add Components to it representing details**/
 	public JPanel getContentArea () {
 		return contentArea;
+	}
+	
+	/**Get the actual panel that contains the details panel inside it**/
+	protected JPanel getPanel () {
+		return this;
 	}
 
 }

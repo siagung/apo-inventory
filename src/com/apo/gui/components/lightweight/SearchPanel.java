@@ -1,4 +1,4 @@
-package com.apo.gui.components;
+package com.apo.gui.components.lightweight;
 
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
