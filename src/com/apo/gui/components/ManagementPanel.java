@@ -10,8 +10,8 @@ import javax.swing.border.EtchedBorder;
 import java.awt.Component;
 import javax.swing.Box;
 
-import com.apo.gui.components.lightweight.DetailsPanel;
-import com.apo.gui.components.lightweight.SearchPanel;
+import com.apo.gui.components.details.DetailsPanel;
+import com.apo.gui.components.search.SearchPanel;
 
 public class ManagementPanel extends JPanel {
 

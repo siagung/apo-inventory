@@ -2,8 +2,9 @@ package com.apo.gui.components;
 
 import javax.swing.JPanel;
 
-import com.apo.gui.components.lightweight.MainNavBar;
-import com.apo.gui.components.lightweight.NavTitleBar;
+import com.apo.gui.components.navigation.MainNavBar;
+import com.apo.gui.components.navigation.NavTitleBar;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Component;

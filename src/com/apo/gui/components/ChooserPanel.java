@@ -8,8 +8,8 @@ import java.awt.Dimension;
 import java.awt.Component;
 import javax.swing.Box;
 
-import com.apo.gui.components.lightweight.DetailsChooser;
-import com.apo.gui.components.lightweight.SearchPanel;
+import com.apo.gui.components.details.DetailsChooser;
+import com.apo.gui.components.search.SearchPanel;
 
 
 public class ChooserPanel extends JPanel {
