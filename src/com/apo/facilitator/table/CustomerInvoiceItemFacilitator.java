@@ -12,18 +12,20 @@ public class CustomerInvoiceItemFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "customer_invoice_item";
 	
 	public static enum Columns {
-		ORDER_ID("order_id", 0),
-		REVISION_ID("revision_id", 1),
-		PRODUCT_ID("product_id", 2),
-		QUANTITY("quantity", 3),
-		SOLD_PRICE("soldPrice", 4);
+		ORDER_ID("order_id", 0, "Order ID"),
+		REVISION_ID("revision_id", 1, "Revision ID"),
+		PRODUCT_ID("product_id", 2, "Product ID"),
+		QUANTITY("quantity", 3, "Quantity"),
+		SOLD_PRICE("soldPrice", 4, "Unit Price");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -33,6 +35,11 @@ public class CustomerInvoiceItemFacilitator extends Facilitator {
 		public int getColumnIndex () {
 			return this.columnIndex;
 		}
+		
+		public String getNormalName () {
+			return this.normalName;
+		}
+		
 	}
 	
 	public CustomerInvoiceItemFacilitator(RevisableDBOperator operator) {

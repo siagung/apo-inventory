@@ -12,19 +12,21 @@ public class SupplierInvoiceItemFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "supplier_invoice_item";
 	
 	public static enum Columns {
-		INVOICE_ID("invoice_id", 0),
-		REVISION_ID("revision_id", 1),
-		PRODUCT_ID("product_id", 2),
-		PO_ID("po_id", 3),
-		QUANTITY("quantity", 4),
-		SOLD_PRICE("sold_price", 5);
+		INVOICE_ID("invoice_id", 0, "Invoice ID"),
+		REVISION_ID("revision_id", 1, "Revision ID"),
+		PRODUCT_ID("product_id", 2, "Product"),
+		PO_ID("po_id", 3, "Purchase Order ID"),
+		QUANTITY("quantity", 4, "Quantity"),
+		SOLD_PRICE("sold_price", 5, "Unit Price");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -33,6 +35,10 @@ public class SupplierInvoiceItemFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 			

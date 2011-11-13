@@ -12,18 +12,20 @@ public class CustomerVisitFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "customer_visit";
 	
 	public static enum Columns {
-		VISIT_ID("visit_id", 0),
-		VISIT_DATE("visit_date", 1),
-		CUSTOMER_ID("customer_id", 2),
-		EMPLOYEE_ID("employee_id", 3),
-		INVOICE_ID("invoice_id", 4);
+		VISIT_ID("visit_id", 0, "Visit ID"),
+		VISIT_DATE("visit_date", 1, "Visit Date"),
+		CUSTOMER_ID("customer_id", 2, "Customer ID"),
+		EMPLOYEE_ID("employee_id", 3, "Employee ID"),
+		INVOICE_ID("invoice_id", 4, "Invoice ID");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -32,6 +34,10 @@ public class CustomerVisitFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	

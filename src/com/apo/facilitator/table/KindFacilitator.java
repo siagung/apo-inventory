@@ -12,14 +12,16 @@ public class KindFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "kind";
 	
 	public static enum Columns {
-		KIND_NAME("product_id", 0);
+		KIND_NAME("product_id", 0, "Kind");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -28,6 +30,10 @@ public class KindFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	

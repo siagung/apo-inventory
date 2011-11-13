@@ -12,17 +12,19 @@ public class CustomerContactFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "customer_contact";
 	
 	public static enum Columns {
-		CUSTOMER_ID("customer_id", 0),
-		REVISION_ID("revision_id", 1),
-		KIND("kind", 2),
-		DETAIL("detail", 3);
+		CUSTOMER_ID("customer_id", 0, "Customer ID"),
+		REVISION_ID("revision_id", 1, "Revision ID"),
+		KIND("kind", 2, "Kind"),
+		DETAIL("detail", 3, "Detail");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -31,6 +33,10 @@ public class CustomerContactFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	

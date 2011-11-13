@@ -12,15 +12,17 @@ public class SecretQuestionFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "secret_question";
 	
 	public static enum Columns {
-		SECRET_ID("secret_id", 0),
-		QUESTION("question", 1);
+		SECRET_ID("secret_id", 0, "Secret ID"),
+		QUESTION("question", 1, "Security Question");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -29,6 +31,10 @@ public class SecretQuestionFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	

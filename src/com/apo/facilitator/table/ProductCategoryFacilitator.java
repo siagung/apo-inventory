@@ -12,16 +12,18 @@ public class ProductCategoryFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "product_category";
 	
 	public static enum Columns {
-		CATEGORY_ID("category_id", 0),
-		CATEGORY_NAME("category_name", 1),
-		CATEGORY_DESC("category_desc", 2);
+		CATEGORY_ID("category_id", 0, "Category ID"),
+		CATEGORY_NAME("category_name", 1, "Category Name"),
+		CATEGORY_DESC("category_desc", 2, "Description");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -30,6 +32,10 @@ public class ProductCategoryFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	

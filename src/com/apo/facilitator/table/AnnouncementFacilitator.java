@@ -30,18 +30,20 @@ public class AnnouncementFacilitator extends Facilitator {
 	}
 	
 	public static enum Columns {
-		ANNOUNCE_ID("announce_id", 0),
-		ANNOUNCE_TYPE_ID("announce_type_id", 1),
-		MESSAGE("message", 2),
-		EMPLOYEE_ID("employee_id", 3),
-		ANNOUNCE_DATE("announce_date", 4);
+		ANNOUNCE_ID("announce_id", 0, "Announcement ID"),
+		ANNOUNCE_TYPE_ID("announce_type_id", 1, "Announcement Type"),
+		MESSAGE("message", 2, "Message"),
+		EMPLOYEE_ID("employee_id", 3, "Employee ID"),
+		ANNOUNCE_DATE("announce_date", 4, "Announcement Date");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -51,6 +53,11 @@ public class AnnouncementFacilitator extends Facilitator {
 		public int getColumnIndex () {
 			return this.columnIndex;
 		}
+		
+		public String getNormalName () {
+			return this.normalName;
+		}
+		
 	}
 	
 	public AnnouncementFacilitator(RevisableDBOperator operator) {

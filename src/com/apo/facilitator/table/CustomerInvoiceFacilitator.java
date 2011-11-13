@@ -12,23 +12,25 @@ public class CustomerInvoiceFacilitator extends Facilitator {
 	public static final String TABLE_NAME = "customer_invoice";
 	
 	public static enum Columns {
-		INVOICE_ID("invoice_id", 0),
-		REVISION_ID("revision_id", 1),
-		HEAD("head", 2),
-		DELETED("deleted", 3),
-		CURRENCY("currency", 4),
-		EXCHANGE_RATE("exchange_rate", 5),
-		ORDER_DATE("order_date", 6),
-		EMPLOYEE_ID("employee_id", 7),
-		ORDER_TYPE("order_type", 8),
-		PAYMENT_TERMS("payment_terms", 9);
+		INVOICE_ID("invoice_id", 0, "Invoice ID"),
+		REVISION_ID("revision_id", 1, "Revision ID"),
+		HEAD("head", 2, "Head Marker"),
+		DELETED("deleted", 3, "Delete Marker"),
+		CURRENCY("currency", 4, "Currency"),
+		EXCHANGE_RATE("exchange_rate", 5, "Exchange Rate"),
+		ORDER_DATE("order_date", 6, "Order Date"),
+		EMPLOYEE_ID("employee_id", 7, "Employee ID"),
+		ORDER_TYPE("order_type", 8, "Order Type"),
+		PAYMENT_TERMS("payment_terms", 9, "Payment Terms");
 		
 		private final String columnName;
 		private final int columnIndex;
+		private final String normalName;
 		
-		Columns(String columnName, int columnIndex) {
+		Columns(String columnName, int columnIndex, String normalName) {
 			this.columnIndex = columnIndex;
 			this.columnName = columnName;
+			this.normalName = normalName;
 		}
 		
 		public String getColumnName () {
@@ -37,6 +39,10 @@ public class CustomerInvoiceFacilitator extends Facilitator {
 		
 		public int getColumnIndex () {
 			return this.columnIndex;
+		}
+		
+		public String getNormalName () {
+			return this.normalName;
 		}
 	}
 	
