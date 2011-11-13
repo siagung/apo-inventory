@@ -1,5 +1,7 @@
 package com.apo.facilitator.table;
 
+import java.util.HashMap;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.ListModel;
 import javax.swing.table.TableModel;
@@ -8,6 +10,48 @@ import com.apo.facilitator.Facilitator;
 import com.apo.operator.RevisableDBOperator;
 
 public class AnnouncementFacilitator extends Facilitator {
+
+	@Override
+	public int newItem(HashMap data) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int newRevision(int id, HashMap data) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void markDelete(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void permanentlyDelete(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void revertItem(int id, int newHeadRevision) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void restoreItem(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deletePreviousRevisions(int id) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public static final String TABLE_NAME = "announcement";
 	
