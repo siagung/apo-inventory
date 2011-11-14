@@ -1,4 +1,4 @@
-package com.apo.gui.components.wizard;
+package com.apo.gui.wizard.components;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

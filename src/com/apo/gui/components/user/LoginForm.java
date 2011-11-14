@@ -191,6 +191,7 @@ public class LoginForm extends JPanel {
 		
 		loginButton = new JButton("Log In");
 		loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		loginButton.setEnabled(false);
 		actionButtonPanel.add(loginButton);
 		
 		Component logInGap = Box.createRigidArea(new Dimension(20, 20));
@@ -199,6 +200,7 @@ public class LoginForm extends JPanel {
 		
 		forgotPasswordButton = new JButton("Forgot Password?");
 		forgotPasswordButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		forgotPasswordButton.setEnabled(false);
 		actionButtonPanel.add(forgotPasswordButton);
 		
 		Component forgotPasswordGap = Box.createRigidArea(new Dimension(20, 20));

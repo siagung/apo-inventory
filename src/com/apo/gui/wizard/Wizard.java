@@ -1,4 +1,4 @@
-package com.apo.gui.components.wizard;
+package com.apo.gui.wizard;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -15,8 +15,9 @@ import java.awt.Color;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
+import java.awt.CardLayout;
 
-public class WizardPanel extends JPanel {
+public class Wizard extends JPanel {
 
 	private JLabel pictureLabel;
 	private JButton previousButton;
@@ -25,15 +26,16 @@ public class WizardPanel extends JPanel {
 	private JLabel curStepLabel;
 	private JLabel totalStepLabel;
 	private JLabel stepDescriptionLabel;
-	private JPanel contentPanel;
+	
+	
 	
 	private boolean finishStep;
 	
 	/**
 	 * Create the panel.
 	 */
-	public WizardPanel() {
-		
+	public Wizard() {
+		super();
 		initComponents();
 
 	}
@@ -118,26 +120,10 @@ public class WizardPanel extends JPanel {
 		stepDescriptionLabel.setFont(new Font("Lucida Grande", Font.BOLD | Font.ITALIC, 18));
 		infoPanel.add(stepDescriptionLabel);
 		
-		JPanel contentHolderPanel = new JPanel();
-		contentHolderPanel.setBackground(Color.WHITE);
-		add(contentHolderPanel, BorderLayout.CENTER);
-		contentHolderPanel.setLayout(new BorderLayout(0, 0));
-		
-		Component topContentGap = Box.createRigidArea(new Dimension(496, 30));
-		contentHolderPanel.add(topContentGap, BorderLayout.NORTH);
-		
-		Component bottomContentGap = Box.createRigidArea(new Dimension(496, 34));
-		contentHolderPanel.add(bottomContentGap, BorderLayout.SOUTH);
-		
-		Component leftContentGap = Box.createRigidArea(new Dimension(46, 337));
-		contentHolderPanel.add(leftContentGap, BorderLayout.WEST);
-		
-		Component rightContentGap = Box.createRigidArea(new Dimension(42, 337));
-		contentHolderPanel.add(rightContentGap, BorderLayout.EAST);
-		
-		contentPanel = new JPanel();
+		JPanel contentPanel = new JPanel();
 		contentPanel.setBackground(Color.WHITE);
-		contentHolderPanel.add(contentPanel, BorderLayout.CENTER);
+		add(contentPanel, BorderLayout.CENTER);
+		contentPanel.setLayout(new CardLayout(0, 0));
 	}
 	
 }

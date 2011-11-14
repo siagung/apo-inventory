@@ -14,9 +14,9 @@ import javax.swing.JPanel;
 
 import com.apo.gui.components.MainPanel;
 import com.apo.gui.components.ManagementPanel;
-import com.apo.gui.components.YouPanel;
 import com.apo.gui.components.navigation.MainNavBar;
 import com.apo.gui.components.user.UserPrompt;
+import com.apo.gui.tabs.YouPanel;
 
 public class MainWindow extends JFrame implements WindowListener {
 	
@@ -50,7 +50,7 @@ public class MainWindow extends JFrame implements WindowListener {
 		JPanel contentPanel = mainPanel.getContentPane();
 		
 		//add YouPanel to contentPanel and put an identifier for it
-		contentPanel.add(new YouPanel(), YOU_TAB);
+		contentPanel.add(new YouPanel(false), YOU_TAB);
 		//add ManagementPanel to contentPanel and put an identifier for it
 		contentPanel.add(new ManagementPanel(), PRODUCT_TAB);
 		

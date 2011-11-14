@@ -23,7 +23,18 @@ public class LargeButtonTrio extends JPanel {
 	 * Create the panel.
 	 */
 	public LargeButtonTrio() {
-		setLayout(new BorderLayout(0, 0));
+		initComponents();
+	}
+	
+	public LargeButtonTrio(String button1Name, Icon button1Icon, String button2Name, Icon button2Icon, String button3Name, Icon button3Icon) {
+		initComponents();
+		setButton1(button1Name, button1Icon);
+		setButton2(button2Name, button2Icon);
+		setButton3(button3Name, button3Icon);
+	}
+	
+	private void initComponents() {
+setLayout(new BorderLayout(0, 0));
 		
 		JPanel buttons = new JPanel();
 		add(buttons);
@@ -32,7 +43,7 @@ public class LargeButtonTrio extends JPanel {
 		Component buttonGap1 = Box.createRigidArea(new Dimension(20, 20));
 		buttonGap1.setPreferredSize(new Dimension(5, 20));
 		buttonGap1.setMinimumSize(new Dimension(5, 20));
-		buttonGap1.setMaximumSize(new Dimension(5, 20));
+		buttonGap1.setMaximumSize(new Dimension(3464, 20));
 		buttons.add(buttonGap1);
 		
 		button1 = new JButton("New button");
@@ -43,7 +54,7 @@ public class LargeButtonTrio extends JPanel {
 		
 		Component buttonGap2 = Box.createRigidArea(new Dimension(20, 20));
 		buttonGap2.setMinimumSize(new Dimension(5, 20));
-		buttonGap2.setMaximumSize(new Dimension(5, 20));
+		buttonGap2.setMaximumSize(new Dimension(3464, 20));
 		buttonGap2.setPreferredSize(new Dimension(5, 20));
 		buttons.add(buttonGap2);
 		
@@ -54,7 +65,7 @@ public class LargeButtonTrio extends JPanel {
 		buttons.add(button2);
 		
 		Component buttonGap3 = Box.createRigidArea(new Dimension(20, 20));
-		buttonGap3.setMaximumSize(new Dimension(5, 20));
+		buttonGap3.setMaximumSize(new Dimension(3464, 20));
 		buttonGap3.setMinimumSize(new Dimension(5, 20));
 		buttonGap3.setPreferredSize(new Dimension(5, 20));
 		buttons.add(buttonGap3);
@@ -68,7 +79,7 @@ public class LargeButtonTrio extends JPanel {
 		Component buttonGap4 = Box.createRigidArea(new Dimension(20, 20));
 		buttonGap4.setPreferredSize(new Dimension(5, 20));
 		buttonGap4.setMinimumSize(new Dimension(5, 20));
-		buttonGap4.setMaximumSize(new Dimension(5, 20));
+		buttonGap4.setMaximumSize(new Dimension(3464, 20));
 		buttons.add(buttonGap4);
 		
 		Component topGap = Box.createRigidArea(new Dimension(20, 20));
@@ -77,12 +88,11 @@ public class LargeButtonTrio extends JPanel {
 		Component bottomGap = Box.createRigidArea(new Dimension(485, 20));
 		add(bottomGap, BorderLayout.SOUTH);
 		
-		Component leftGap = Box.createRigidArea(new Dimension(20, 20));
-		add(leftGap, BorderLayout.WEST);
+		Component leftGlue = Box.createGlue();
+		add(leftGlue, BorderLayout.WEST);
 		
-		Component rightGap = Box.createRigidArea(new Dimension(20, 161));
-		add(rightGap, BorderLayout.EAST);
-
+		Component rightGlue = Box.createGlue();
+		add(rightGlue, BorderLayout.EAST);
 	}
 
 	/**
@@ -106,42 +116,33 @@ public class LargeButtonTrio extends JPanel {
 		return button3;
 	}
 	
-	/**Set the button's look
-	 * 
-	 * @param buttonName The name to be set on the button
-	 * @param icon The icon to be put on the button
-	 * @param button The actual button to be set (use getButton1(), getButton2(), getButton3())
-	 */
-	public void setButton (String buttonName, Icon icon, JButton button) {
-		if (button == button1) {
-			button1.setText(buttonName);
-			button1.setIcon(icon);
-		}
-		else if (button == button2) {
-			button2.setText(buttonName);
-			button2.setIcon(icon);
-		}
-		else if (button == button3) {
-			button3.setText(buttonName);
-			button3.setIcon(icon);
-		}
+	public void setButton1 (String buttonName, Icon icon) {
+		button1.setText(buttonName);
+		button1.setIcon(icon);
 	}
 	
-	/**Add action listeners to the button stated in the parameter button
-	 * 
-	 * @param listener The listener to be added to a button
-	 * @param button The button gotten from getButton1(), getButton2() or getButton3()
-	 */
-	public void addActionListener (ActionListener listener, JButton button) {
-		if (button == button1) {
-			button.addActionListener(listener);
-		}
-		else if (button == button2) {
-			button.addActionListener(listener);
-		}
-		else if (button == button3) {
-			button.addActionListener(listener);
-		}
+	public void setButton2 (String buttonName, Icon icon) {
+		button2.setText(buttonName);
+		button2.setIcon(icon);
 	}
+	
+	public void setButton3 (String buttonName, Icon icon) {
+		button3.setText(buttonName);
+		button3.setIcon(icon);		
+	}
+	
+	public void addButton1ActionListener (ActionListener listener) {
+		button1.addActionListener(listener);
+	}
+	
+	
+	public void addButton2ActionListener (ActionListener listener) {
+		button2.addActionListener(listener);
+	}
+	
+	public void addButton3ActionListener (ActionListener listener) {
+		button3.addActionListener(listener);
+	}
+	
 	
 }
