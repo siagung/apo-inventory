@@ -130,6 +130,7 @@ public class DetailsOptionButtons extends JPanel {
 		trashMoreGap.setPreferredSize(new Dimension(2, 0));
 		
 		moreButton = new JButton("More...");
+		moreButton.setIcon(new ImageIcon(DetailsOptionButtons.class.getResource("/com/apo/res/medquality/more.png")));
 		buttonPanel.add(moreButton);
 		moreButton.setPreferredSize(new Dimension(107, 29));
 		moreButton.setHorizontalTextPosition(SwingConstants.CENTER);
