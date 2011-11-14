@@ -17,8 +17,8 @@ public class InputIcon extends JLabel {
 	 * Create the panel.
 	 */
 	public InputIcon() {
-		complete = new ImageIcon(InputIcon.class.getResource("/com/apo/res/lowquality/greenlight.png"));
-		incomplete = new ImageIcon(InputIcon.class.getResource("/com/apo/res/lowaulity/redlight.png"));
+		this.complete = new ImageIcon(InputIcon.class.getResource("/com/apo/res/lowquality/greenlight.png"));
+		this.incomplete = new ImageIcon(InputIcon.class.getResource("/com/apo/res/lowquality/redlight.png"));
 		this.setIcon(incomplete);
 	}
 	

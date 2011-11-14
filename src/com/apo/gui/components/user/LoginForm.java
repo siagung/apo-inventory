@@ -97,6 +97,7 @@ public class LoginForm extends JPanel {
 	 * Create the panel.
 	 */
 	public LoginForm() {
+		setMaximumSize(new Dimension(32767, 4095));
 		setLayout(new BorderLayout(0, 0));
 		
 		Component westGap = Box.createRigidArea(new Dimension(20, 20));
@@ -116,6 +117,7 @@ public class LoginForm extends JPanel {
 		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 		
 		Component topGlue = Box.createGlue();
+		topGlue.setMaximumSize(new Dimension(32767, 8191));
 		loginPanel.add(topGlue);
 		
 		JPanel userNamePanel = new JPanel();
@@ -139,7 +141,7 @@ public class LoginForm extends JPanel {
 		userNameField = new JTextField();
 		userNameField.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		userNameField.setPreferredSize(new Dimension(167, 28));
-		userNameField.setMaximumSize(new Dimension(204, 1633));
+		userNameField.setMaximumSize(new Dimension(204, 300));
 		userNamePanel.add(userNameField);
 		
 		Component userNameRightGap = Box.createRigidArea(new Dimension(20, 20));
@@ -171,7 +173,7 @@ public class LoginForm extends JPanel {
 		passwordField.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		passwordPanel.add(passwordField);
 		passwordField.setPreferredSize(new Dimension(167, 28));
-		passwordField.setMaximumSize(new Dimension(204, 1633));
+		passwordField.setMaximumSize(new Dimension(204, 300));
 		
 		Component passwordRightGap = Box.createRigidArea(new Dimension(20, 20));
 		passwordPanel.add(passwordRightGap);
@@ -212,6 +214,7 @@ public class LoginForm extends JPanel {
 		actionButtonPanel.add(exitGap);
 		
 		Component bottomGlue = Box.createGlue();
+		bottomGlue.setMaximumSize(new Dimension(32767, 8191));
 		loginPanel.add(bottomGlue);
 
 	}

@@ -93,6 +93,7 @@ public class MainNavBar extends JPanel {
 	 * Create the panel.
 	 */
 	public MainNavBar() {
+		super();
 		setLayout(new BorderLayout(0, 0));
 		
 		JPanel navButtonPanel = new JPanel();

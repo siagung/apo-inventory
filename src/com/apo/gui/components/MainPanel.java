@@ -17,7 +17,7 @@ public class MainPanel extends JPanel {
 
 	private NavTitleBar titleBar;
 	private MainNavBar mainNavBar;
-	private JPanel contentFrame;
+	private JPanel contentPane;
 	
 	/**
 	 * Create the panel.
@@ -34,10 +34,10 @@ public class MainPanel extends JPanel {
 		add(bodyFrame, BorderLayout.CENTER);
 		bodyFrame.setLayout(new BorderLayout(0, 0));
 		
-		contentFrame = new JPanel();
-		contentFrame.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		bodyFrame.add(contentFrame, BorderLayout.CENTER);
-		contentFrame.setLayout(new CardLayout(0, 0));
+		contentPane = new JPanel();
+		contentPane.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		bodyFrame.add(contentPane, BorderLayout.CENTER);
+		contentPane.setLayout(new CardLayout(0, 0));
 		
 		Component topGap = Box.createRigidArea(new Dimension(20, 20));
 		bodyFrame.add(topGap, BorderLayout.NORTH);
@@ -69,8 +69,8 @@ public class MainPanel extends JPanel {
 	/**
 	 * @return the contentFrame
 	 */
-	public JPanel getContentFrame() {
-		return contentFrame;
+	public JPanel getContentPane() {
+		return contentPane;
 	}
 
 }
