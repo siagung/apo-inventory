@@ -40,19 +40,23 @@ public class SearchPanel extends JPanel {
 		});
 	}
 	
-	public JTextField getSearchField() {
+	protected JTextField getSearchField() {
 		return searchField;
 	}
+	
+	public String getSearchFieldText () {
+		return searchField.getText();
+	}
 
-	public JButton getSearchButton() {
+	protected JButton getSearchButton() {
 		return searchButton;
 	}
 
-	public void setSearchButtonListener(ActionListener searchButtonListener) {
+	public void addSearchButtonListener(ActionListener searchButtonListener) {
 		this.searchButton.addActionListener(searchButtonListener);
 	}
 
-	public JList getResultList() {
+	protected JList getResultList() {
 		return resultList;
 	}
 
@@ -60,12 +64,16 @@ public class SearchPanel extends JPanel {
 		this.resultList.setModel(listModel);
 	}
 
-	public JLabel getItemCountLabel() {
+	protected JLabel getItemCountLabel() {
 		return itemCountLabel;
 	}
-
-	public void setItemCountLabelText(String countText) {
-		this.itemCountLabel.setText(countText);
+	
+	public String getItemCountLabelText () {
+		return itemCountLabel.getText();
+	}
+	
+	public void setItemCountLabelText (String text) {
+		itemCountLabel.setText(text);
 	}
 	
 	/**Get the actual panel that contains the details panel inside it**/

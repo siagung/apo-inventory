@@ -54,14 +54,14 @@ public class DetailsChooserButtons extends JPanel {
 	/**
 	 * @return the chooseButton
 	 */
-	public JButton getChooseButton() {
+	protected JButton getChooseButton() {
 		return chooseButton;
 	}
 
 	/**
 	 * @return the cancelButton
 	 */
-	public JButton getCancelButton() {
+	protected JButton getCancelButton() {
 		return cancelButton;
 	}
 	

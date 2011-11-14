@@ -77,21 +77,21 @@ public class DetailsNavButtons extends JPanel {
 	/**
 	 * @return the previousButton
 	 */
-	public JButton getPreviousButton() {
+	protected JButton getPreviousButton() {
 		return previousButton;
 	}
 
 	/**
 	 * @return the nextButton
 	 */
-	public JButton getNextButton() {
+	protected JButton getNextButton() {
 		return nextButton;
 	}
 
 	/**
 	 * @return the itemNameLabel
 	 */
-	public JLabel getItemNameLabel() {
+	protected JLabel getItemNameLabel() {
 		return itemNameLabel;
 	}
 	

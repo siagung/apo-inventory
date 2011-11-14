@@ -14,18 +14,34 @@ public class UserPrompt extends JPanel {
 	JLabel headerLabel;
 	JLabel descriptionLabel;
 	
+	public void setHeaderLabelText (String text) {
+		headerLabel.setText(text);
+	}
+	
+	public void setDescriptionLabelText (String text) {
+		descriptionLabel.setText(text);
+	}
+	
+	public void setHeaderLabelFont (Font font) {
+		headerLabel.setFont(font);
+	}
+	
+	public void setDescriptionLabelFont (Font font) {
+		descriptionLabel.setFont(font);
+	}
+	
 	
 	/**
 	 * @return the headerLabel
 	 */
-	public JLabel getHeaderLabel() {
+	protected JLabel getHeaderLabel() {
 		return headerLabel;
 	}
 
 	/**
 	 * @return the descriptionLabel
 	 */
-	public JLabel getDescriptionLabel() {
+	protected JLabel getDescriptionLabel() {
 		return descriptionLabel;
 	}
 

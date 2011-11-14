@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 
 public class NavTitleBar extends JPanel {
 
@@ -94,8 +95,12 @@ public class NavTitleBar extends JPanel {
 	/**
 	 * @return the backButton
 	 */
-	public JButton getBackButton() {
+	protected JButton getBackButton() {
 		return backButton;
+	}
+	
+	public void addBackButtonListener(ActionListener listener) {
+		backButton.addActionListener(listener);
 	}
 
 	/**
@@ -104,12 +109,22 @@ public class NavTitleBar extends JPanel {
 	public JLabel getFirstTierPlaceLabel() {
 		return firstTierPlaceLabel;
 	}
+	
+	public void setFirstTierPlaceLabel (String place, Icon icon) {
+		firstTierPlaceLabel.setText(place);
+		firstTierPlaceLabel.setIcon(icon);
+	}
 
 	/**
 	 * @return the secondTierPlaceLabel
 	 */
 	public JLabel getSecondTierPlaceLabel() {
 		return secondTierPlaceLabel;
+	}
+	
+	public void setSecondTierPlaceLabel (String place, Icon icon) {
+		secondTierPlaceLabel.setText(place);
+		secondTierPlaceLabel.setIcon(icon);
 	}
 
 	/**
@@ -119,29 +134,9 @@ public class NavTitleBar extends JPanel {
 		return thirdTierPlaceLabel;
 	}
 	
-	/**Displays a specific place label on the nav bar hierarchy
-	 * 
-	 * @param place Where is the user now?
-	 * @param icon What is the icon representation of the user's location?
-	 * @param placeLabel Which tier of label should display this information (use getFirstTierPlaceLabel(), getSecondTierPlaceLabel() or getThirdTierPlaceLabel()
-	 */
-	public void displayPlaceLabel (String place, Icon icon, JLabel placeLabel) {
-		if (placeLabel == firstTierPlaceLabel) {
-			firstTierPlaceLabel.setText(place);
-			firstTierPlaceLabel.setIcon(icon);
-		}
-		else if (placeLabel == secondTierPlaceLabel) {
-			secondTierPlaceLabel.setText(place);
-			secondTierPlaceLabel.setIcon(icon);
-			chevron1.setVisible(true);
-			secondTierPlaceLabel.setVisible(true);
-		}
-		else if (placeLabel == thirdTierPlaceLabel) {
-			thirdTierPlaceLabel.setText(place);
-			thirdTierPlaceLabel.setIcon(icon);
-			chevron2.setVisible(true);
-			thirdTierPlaceLabel.setVisible(true);
-		}
+	public void setThirdTierPlaceLabel (String place, Icon icon) {
+		thirdTierPlaceLabel.setText(place);
+		thirdTierPlaceLabel.setIcon(icon);
 	}
-
+	
 }

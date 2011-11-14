@@ -1,26 +1,32 @@
 package com.apo.gui.components.details;
 
+import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JPanel;
-import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
 import javax.swing.BoxLayout;
-import java.awt.BorderLayout;
 
 public class DetailsOptionButtons extends JPanel {
 
-	JButton addButton;
-	JButton editButton;
-	JButton deleteButton;
-	JButton revertButton;
-	JButton trashCanButton;
-	JButton moreButton;
+	private JButton addButton;
+	private JButton editButton;
+	private JButton deleteButton;
+	private JButton revertButton;
+	private JButton trashCanButton;
+	private JButton moreButton;
+	
+	private JPopupMenu popupMenu;
+	
 	private Component leftGap;
 	private Component rightGap;
 	private Component addEditGap;
@@ -128,6 +134,15 @@ public class DetailsOptionButtons extends JPanel {
 		moreButton.setPreferredSize(new Dimension(107, 29));
 		moreButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		moreButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+		moreButton.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				popupMenu.show(arg0.getComponent(), arg0.getX(), arg0.getY());
+				
+			}
+			
+		});
 		
 		rightGap = Box.createRigidArea(new Dimension(20, 20));
 		buttonPanel.add(rightGap);
@@ -145,43 +160,84 @@ public class DetailsOptionButtons extends JPanel {
 	/**Get the Add Button
 	 * @return the addButton
 	 */
-	public JButton getAddButton() {
+	protected JButton getAddButton() {
 		return addButton;
+	}
+	
+	public void addAddButtonListener (ActionListener listener) {
+		addButton.addActionListener(listener);
 	}
 
 	/**Get the Edit Button
 	 * @return the editButton
 	 */
-	public JButton getEditButton() {
+	protected JButton getEditButton() {
 		return editButton;
+	}
+	
+	public void addEditButtonListener (ActionListener listener) {
+		editButton.addActionListener(listener);
 	}
 
 	/**Get the Delete Button
 	 * @return the deleteButton
 	 */
-	public JButton getDeleteButton() {
+	protected JButton getDeleteButton() {
 		return deleteButton;
+	}
+	
+	public void addDeleteButtonListener (ActionListener listener) {
+		deleteButton.addActionListener (listener);
 	}
 
 	/**Get the Revert Button
 	 * @return the revertButton
 	 */
-	public JButton getRevertButton() {
+	protected JButton getRevertButton() {
 		return revertButton;
+	}
+	
+	public void addRevertButtonListener(ActionListener listener) {
+		revertButton.addActionListener(listener);
 	}
 
 	/**Get the Trash Can Button
 	 * @return the trashCanButton
 	 */
-	public JButton getTrashCanButton() {
+	protected JButton getTrashCanButton() {
 		return trashCanButton;
+	}
+	
+	public void addTrashCanButtonListener(ActionListener listener) {
+		trashCanButton.addActionListener(listener);
 	}
 
 	/**Get the More Button
 	 * @return the moreButton
 	 */
-	public JButton getMoreButton() {
+	protected JButton getMoreButton() {
 		return moreButton;
+	}
+	
+	public void addMoreButtonMenuItem(JMenuItem menuItem) {
+		popupMenu.add(menuItem);
+	}
+	
+	public void addMoreButtonMenuItem(Action menuAction) {
+		popupMenu.add(menuAction);
+	}
+	
+	public void addMoreButtonMenuItem(String menuItemName, Icon icon, ActionListener listener) {
+		JMenuItem newMenuItem;
+		
+		if (icon != null) {
+			newMenuItem = new JMenuItem(menuItemName, icon);
+		}
+		else {
+			newMenuItem = new JMenuItem(menuItemName);
+		}
+		newMenuItem.addActionListener(listener);
+		popupMenu.add(newMenuItem);
 	}
 
 }

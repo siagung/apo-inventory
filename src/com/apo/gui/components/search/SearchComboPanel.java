@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -41,11 +42,15 @@ public class SearchComboPanel extends JPanel {
 		});
 	}
 	
-	public JTextField getSearchField() {
+	protected JTextField getSearchField() {
 		return searchField;
 	}
+	
+	public String getSearchFieldText() {
+		return searchField.getText();
+	}
 
-	public JButton getSearchButton() {
+	protected JButton getSearchButton() {
 		return searchButton;
 	}
 
@@ -53,7 +58,7 @@ public class SearchComboPanel extends JPanel {
 		this.searchButton.addActionListener(searchButtonListener);
 	}
 
-	public JList getResultList() {
+	protected JList getResultList() {
 		return resultList;
 	}
 
@@ -61,8 +66,12 @@ public class SearchComboPanel extends JPanel {
 		this.resultList.setModel(listModel);
 	}
 
-	public JLabel getItemCountLabel() {
+	protected JLabel getItemCountLabel() {
 		return itemCountLabel;
+	}
+	
+	public String getItemCountLabelText() {
+		return itemCountLabel.getText();
 	}
 
 	public void setItemCountLabelText(String countText) {
@@ -72,8 +81,12 @@ public class SearchComboPanel extends JPanel {
 	/**
 	 * @return the selector
 	 */
-	public JComboBox getSelector() {
+	protected JComboBox getSelector() {
 		return selector;
+	}
+	
+	public void setSelectorModel (ComboBoxModel model) {
+		selector.setModel(model);
 	}
 	
 	/**Get the actual panel that contains the details panel inside it**/

@@ -11,6 +11,7 @@ import java.awt.Component;
 import javax.swing.Box;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.BevelBorder;
+import java.awt.CardLayout;
 
 public class MainPanel extends JPanel {
 
@@ -36,6 +37,7 @@ public class MainPanel extends JPanel {
 		contentFrame = new JPanel();
 		contentFrame.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		bodyFrame.add(contentFrame, BorderLayout.CENTER);
+		contentFrame.setLayout(new CardLayout(0, 0));
 		
 		Component topGap = Box.createRigidArea(new Dimension(20, 20));
 		bodyFrame.add(topGap, BorderLayout.NORTH);

@@ -11,10 +11,87 @@ import javax.swing.JTextPane;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.awt.Font;
+import javax.swing.JPasswordField;
+import java.awt.GridLayout;
+import javax.swing.SwingConstants;
+import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
 
 public class LoginForm extends JPanel {
-	private JTextField passwordField;
+	private JPasswordField passwordField;
 	private JTextField userNameField;
+	private JButton loginButton;
+	private JButton forgotPasswordButton;
+	private JButton exitButton;
+		
+	public void addLoginButtonListener (ActionListener listener) {
+		loginButton.addActionListener(listener);
+	}
+	
+	public void addForgotPasswordListener (ActionListener listener) {
+		forgotPasswordButton.addActionListener(listener);
+	}
+	
+	public void addExitListener (ActionListener listener) {
+		exitButton.addActionListener(listener);
+	}
+	
+	public void setForgotPasswordButtonVisible (boolean visibility) {
+		forgotPasswordButton.setVisible(visibility);
+	}
+	
+	public String getUserNameText () {
+		return userNameField.getText();
+	}
+	
+	public char[] getPassword () {
+		return passwordField.getPassword();
+	}
+	
+	/**
+	 * @return the passwordField
+	 */
+	protected JPasswordField getPasswordField() {
+		return passwordField;
+	}
+
+
+
+	/**
+	 * @return the userNameField
+	 */
+	protected JTextField getUserNameField() {
+		return userNameField;
+	}
+
+
+
+	/**
+	 * @return the loginButton
+	 */
+	protected JButton getLoginButton() {
+		return loginButton;
+	}
+
+
+
+	/**
+	 * @return the forgotPasswordButton
+	 */
+	protected JButton getForgotPasswordButton() {
+		return forgotPasswordButton;
+	}
+
+
+
+	/**
+	 * @return the exitButton
+	 */
+	protected JButton getExitButton() {
+		return exitButton;
+	}
+
+
 
 	/**
 	 * Create the panel.
@@ -28,74 +105,114 @@ public class LoginForm extends JPanel {
 		Component northGap = Box.createRigidArea(new Dimension(20, 20));
 		add(northGap, BorderLayout.NORTH);
 		
-		Component eastGap = Box.createRigidArea(new Dimension(20, 20));
+		Component eastGap = Box.createRigidArea(new Dimension(20, 260));
 		add(eastGap, BorderLayout.EAST);
 		
 		Component southGap = Box.createRigidArea(new Dimension(20, 20));
 		add(southGap, BorderLayout.SOUTH);
 		
-		JPanel panel = new JPanel();
-		add(panel, BorderLayout.CENTER);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel loginPanel = new JPanel();
+		add(loginPanel, BorderLayout.CENTER);
+		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
+		
+		Component topGlue = Box.createGlue();
+		loginPanel.add(topGlue);
 		
 		JPanel userNamePanel = new JPanel();
-		userNamePanel.setMaximumSize(new Dimension(16383, 16383));
-		panel.add(userNamePanel);
+		loginPanel.add(userNamePanel);
 		userNamePanel.setLayout(new BoxLayout(userNamePanel, BoxLayout.X_AXIS));
 		
+		Component userNameLeftGap = Box.createRigidArea(new Dimension(20, 20));
+		userNamePanel.add(userNameLeftGap);
+		
 		JLabel userNameLabel = new JLabel("User Name");
-		userNameLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		userNameLabel.setMaximumSize(new Dimension(90, 16));
+		userNameLabel.setPreferredSize(new Dimension(80, 16));
+		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNamePanel.add(userNameLabel);
+		userNameLabel.setHorizontalTextPosition(SwingConstants.LEADING);
+		userNameLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14));
+		
+		Component userLabelFieldGap = Box.createRigidArea(new Dimension(20, 20));
+		userNamePanel.add(userLabelFieldGap);
 		
 		userNameField = new JTextField();
-		userNameField.setMinimumSize(new Dimension(135, 28));
-		userNameField.setPreferredSize(new Dimension(129, 28));
-		userNameField.setMaximumSize(new Dimension(2147, 2147));
+		userNameField.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		userNameField.setPreferredSize(new Dimension(167, 28));
+		userNameField.setMaximumSize(new Dimension(204, 1633));
 		userNamePanel.add(userNameField);
-		userNameField.setColumns(10);
+		
+		Component userNameRightGap = Box.createRigidArea(new Dimension(20, 20));
+		userNamePanel.add(userNameRightGap);
+		
+		Component userNameGap = Box.createRigidArea(new Dimension(20, 20));
+		userNameGap.setPreferredSize(new Dimension(20, 10));
+		loginPanel.add(userNameGap);
 		
 		JPanel passwordPanel = new JPanel();
-		passwordPanel.setMaximumSize(new Dimension(16383, 16383));
-		panel.add(passwordPanel);
+		loginPanel.add(passwordPanel);
+		passwordPanel.setLayout(new BoxLayout(passwordPanel, BoxLayout.X_AXIS));
+		
+		Component passwordLeftGap = Box.createRigidArea(new Dimension(20, 20));
+		passwordPanel.add(passwordLeftGap);
 		
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		passwordLabel.setMaximumSize(new Dimension(90, 16));
+		passwordLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		passwordLabel.setPreferredSize(new Dimension(80, 16));
+		passwordLabel.setHorizontalTextPosition(SwingConstants.LEADING);
 		passwordPanel.add(passwordLabel);
+		passwordLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14));
 		
-		passwordField = new JTextField();
+		Component passwordLabelFieldGap = Box.createRigidArea(new Dimension(20, 20));
+		passwordPanel.add(passwordLabelFieldGap);
+		
+		passwordField = new JPasswordField();
+		passwordField.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		passwordPanel.add(passwordField);
-		passwordField.setColumns(10);
+		passwordField.setPreferredSize(new Dimension(167, 28));
+		passwordField.setMaximumSize(new Dimension(204, 1633));
 		
-		Component buttonSeparate = Box.createRigidArea(new Dimension(20, 20));
-		panel.add(buttonSeparate);
+		Component passwordRightGap = Box.createRigidArea(new Dimension(20, 20));
+		passwordPanel.add(passwordRightGap);
 		
-		JPanel buttonPanel = new JPanel();
-		panel.add(buttonPanel);
+		Component passwordGap = Box.createRigidArea(new Dimension(20, 20));
+		loginPanel.add(passwordGap);
+		
+		JPanel actionButtonPanel = new JPanel();
+		loginPanel.add(actionButtonPanel);
+		actionButtonPanel.setLayout(new BoxLayout(actionButtonPanel, BoxLayout.X_AXIS));
 		
 		Component leftGap = Box.createRigidArea(new Dimension(20, 20));
 		leftGap.setPreferredSize(new Dimension(5, 20));
-		buttonPanel.add(leftGap);
+		actionButtonPanel.add(leftGap);
 		
-		JButton loginButton = new JButton("Log In");
-		buttonPanel.add(loginButton);
+		loginButton = new JButton("Log In");
+		loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actionButtonPanel.add(loginButton);
 		
-		Component loginGap = Box.createRigidArea(new Dimension(20, 20));
-		loginGap.setPreferredSize(new Dimension(10, 20));
-		buttonPanel.add(loginGap);
+		Component logInGap = Box.createRigidArea(new Dimension(20, 20));
+		logInGap.setPreferredSize(new Dimension(10, 20));
+		actionButtonPanel.add(logInGap);
 		
-		JButton forgotPasswordButton = new JButton("Forgot Password?");
-		buttonPanel.add(forgotPasswordButton);
+		forgotPasswordButton = new JButton("Forgot Password?");
+		forgotPasswordButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actionButtonPanel.add(forgotPasswordButton);
 		
 		Component forgotPasswordGap = Box.createRigidArea(new Dimension(20, 20));
 		forgotPasswordGap.setPreferredSize(new Dimension(10, 20));
-		buttonPanel.add(forgotPasswordGap);
+		actionButtonPanel.add(forgotPasswordGap);
 		
-		JButton exitButton = new JButton("Exit");
-		buttonPanel.add(exitButton);
+		exitButton = new JButton("Exit");
+		exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actionButtonPanel.add(exitButton);
 		
 		Component exitGap = Box.createRigidArea(new Dimension(20, 20));
 		exitGap.setPreferredSize(new Dimension(5, 20));
-		buttonPanel.add(exitGap);
+		actionButtonPanel.add(exitGap);
+		
+		Component bottomGlue = Box.createGlue();
+		loginPanel.add(bottomGlue);
 
 	}
 
