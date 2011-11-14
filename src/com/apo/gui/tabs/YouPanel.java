@@ -7,7 +7,6 @@ import javax.swing.BoxLayout;
 import com.apo.gui.components.LargeButtonTrio;
 import com.apo.gui.components.user.LoginForm;
 import com.apo.gui.components.user.UserPrompt;
-import java.awt.Component;
 import java.awt.CardLayout;
 
 public class YouPanel extends JPanel {
