@@ -1,13 +1,20 @@
 package com.apo.gui.tabs;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import com.apo.gui.MainWindow;
 import com.apo.gui.components.LargeButtonTrio;
 import com.apo.gui.components.user.LoginForm;
 import com.apo.gui.components.user.UserPrompt;
 import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class YouPanel extends JPanel {
 	
@@ -18,7 +25,11 @@ public class YouPanel extends JPanel {
 	
 	private UserPrompt userPrompt;
 	private LoginForm loginForm;
-	private JPanel youPanels;
+	private final JPanel youPanels;
+	
+	private CardLayout panelLayout;
+	
+	private LargeButtonTrio largeButtonTrio;
 	
 	/**
 	 * Create the panel.
@@ -33,13 +44,71 @@ public class YouPanel extends JPanel {
 		youPanels = new JPanel();
 		add(youPanels);
 		youPanels.setLayout(new CardLayout(0, 0));
+		panelLayout = (CardLayout)youPanels.getLayout();
 		loginForm = new LoginForm();
 		youPanels.add(loginForm, LOG_IN);
+		loginForm.getUserNameField().getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				loginForm.getLoginButton().setEnabled(true);
+				loginForm.getForgotPasswordButton().setEnabled(true);
+				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				if (arg0.getLength() == 0) {
+					loginForm.getLoginButton().setEnabled(false);
+					loginForm.getForgotPasswordButton().setEnabled(false);
+				}
+				
+			}
+			
+		});
+		loginForm.addLoginButtonListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+							
+				if (loginForm.getUserNameText().equalsIgnoreCase("kevin")) {
+					userPrompt.setHeaderLabelText("Welcome, Kevin!");
+					userPrompt.setDescriptionLabelText("What would you like to do?");
+					panelLayout.show(youPanels, YouPanel.MAIN_BUTTONS);
+				}
+				else if (loginForm.getUserNameText().equalsIgnoreCase("jerwin")) {
+					userPrompt.setHeaderLabelText("Welcome, Jerwin!");
+					userPrompt.setDescriptionLabelText("What would you like to do?");
+					panelLayout.show(youPanels, YouPanel.MAIN_BUTTONS);
+				}
+				else if (loginForm.getUserNameText().equalsIgnoreCase("vincent")) {
+					userPrompt.setHeaderLabelText("Welcome, Vincent!");
+					userPrompt.setDescriptionLabelText("What would you like to do?");
+					panelLayout.show(youPanels, YouPanel.MAIN_BUTTONS);
+				}
+				else if (loginForm.getUserNameText().equalsIgnoreCase("daniel")) {
+					userPrompt.setHeaderLabelText("Welcome, Daniel!");
+					userPrompt.setDescriptionLabelText("What would you like to do?");
+					panelLayout.show(youPanels, YouPanel.MAIN_BUTTONS);
+				}
+				else {
+					userPrompt.setDescriptionLabelText("Sorry, the username and/or password seems to be wrong.");
+				}
+				loginForm.getUserNameField().setText("");
+				loginForm.getPasswordField().setText("");
+			}
+			
+		});
 		
 		this.admin = adminAccess;
 		
 		/**Load buttons and their names**/
-		ImageIcon userManagement = new ImageIcon(YouPanel.class.getResource("com/apo/res/medquality/usermultiple.png"));
 		String userMgmtButtonName;
 		
 		if(adminAccess) {
@@ -49,14 +118,37 @@ public class YouPanel extends JPanel {
 			userMgmtButtonName = "View Employee List";
 		}
 		
-		ImageIcon announcements = new ImageIcon(YouPanel.class.getResource("com/apo/res/medquality/announcements.png"));
 		String announcementsName = "Announcements";
 		
-		ImageIcon logOut = new ImageIcon(YouPanel.class.getResource("com/apo/res/medquality/logoff.png"));
 		String logOutName = "Log Out";
 		
-		LargeButtonTrio buttons = new LargeButtonTrio(userMgmtButtonName, userManagement, announcementsName, announcements, logOutName, logOut);
-		youPanels.add(buttons, MAIN_BUTTONS);
+		largeButtonTrio = new LargeButtonTrio(userMgmtButtonName, announcementsName, logOutName);
+		largeButtonTrio.getButton3().setIcon(new ImageIcon(YouPanel.class.getResource("/com/apo/res/medquality/logoff.png")));
+		largeButtonTrio.getButton1().setIcon(new ImageIcon(YouPanel.class.getResource("/com/apo/res/medquality/usermultiple.png")));
+		largeButtonTrio.getButton2().setIcon(new ImageIcon(YouPanel.class.getResource("/com/apo/res/medquality/announcements.png")));
+		youPanels.add(largeButtonTrio, MAIN_BUTTONS);
+		largeButtonTrio.addButton3ActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				panelLayout.show(youPanels, YouPanel.LOG_IN);
+
+				userPrompt.setHeaderLabelText("You are not logged in.");
+				userPrompt.setDescriptionLabelText("Please put in your user name and password to log in.");
+			}
+			
+		});
+		
+		largeButtonTrio.addButton1ActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CardLayout cl = (CardLayout)youPanels.getParent().getLayout();
+				cl.show(getParent(), MainWindow.EMPLOYEE_TAB);
+			}
+			
+		});
+		
 	}
 	
 	public void setActiveView (String panelConstant) {

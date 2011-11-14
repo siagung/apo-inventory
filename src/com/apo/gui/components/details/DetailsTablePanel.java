@@ -16,7 +16,6 @@ public class DetailsTablePanel extends JPanel {
 		table = new DetailsTable();
 		add(table, BorderLayout.CENTER);
 		optionButtons = new DetailsOptionButtons();
-		optionButtons.getRevertButton().setVisible(false);
 		optionButtons.getMoreButton().setVisible(false);
 		optionButtons.getTrashCanButton().setVisible(false);
 		add(optionButtons, BorderLayout.SOUTH);

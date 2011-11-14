@@ -16,6 +16,10 @@ import com.apo.gui.components.MainPanel;
 import com.apo.gui.components.ManagementPanel;
 import com.apo.gui.components.navigation.MainNavBar;
 import com.apo.gui.components.user.UserPrompt;
+import com.apo.gui.tabs.CustomersPanel;
+import com.apo.gui.tabs.EmployeesPanel;
+import com.apo.gui.tabs.ProductsPanel;
+import com.apo.gui.tabs.SuppliersPanel;
 import com.apo.gui.tabs.YouPanel;
 
 public class MainWindow extends JFrame implements WindowListener {
@@ -28,8 +32,11 @@ public class MainWindow extends JFrame implements WindowListener {
 	private final int WIDTH = 1024;
 	
 	/**Card Identifiers**/
-	final static String PRODUCT_TAB = "Product Management Panel";
-	final static String YOU_TAB = "You Login";
+	public static final String PRODUCT_TAB = "Product Management Panel";
+	public static final String YOU_TAB = "You Login";
+	public static final String EMPLOYEE_TAB = "Employee Panel";
+	public static final String SUPPLIER_TAB = "Supplier Panel";
+	public static final String CUSTOMER_TAB = "Customer Panel";
 	
 	public MainWindow (String title) {
 		super(title);
@@ -51,9 +58,14 @@ public class MainWindow extends JFrame implements WindowListener {
 		
 		//add YouPanel to contentPanel and put an identifier for it
 		contentPanel.add(new YouPanel(false), YOU_TAB);
-		//add ManagementPanel to contentPanel and put an identifier for it
-		contentPanel.add(new ManagementPanel(), PRODUCT_TAB);
-		
+		//add ProductsPanel to contentPanel and put an identifier for it
+		contentPanel.add(new ProductsPanel(), PRODUCT_TAB);
+		//add EmployeesPanel to contentPanel and put an identifier for it
+		contentPanel.add(new EmployeesPanel(), EMPLOYEE_TAB);
+		//add SuppliersPanel to contentPanel and put ID for it
+		contentPanel.add(new SuppliersPanel(), SUPPLIER_TAB);
+		//add CustomersPanel to contentPanel and ID it
+		contentPanel.add(new CustomersPanel(), CUSTOMER_TAB);
 	}
 	
 	public void assignListeners() {

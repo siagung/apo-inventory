@@ -7,12 +7,12 @@ import com.apo.gui.components.details.DetailsChooserButtons;
 import com.apo.gui.components.details.DetailsComboView;
 import com.apo.gui.components.details.DetailsView;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 public class ComparisonView extends JPanel {
-
-	private DetailsComboView revisions;
 	private DetailsView original;
 	private DetailsChooserButtons chooserButtons;
+	private DetailsComboView revisions;
 	
 	/**
 	 * Create the panel.
@@ -26,6 +26,7 @@ public class ComparisonView extends JPanel {
 		add(splitPane, BorderLayout.CENTER);
 		
 		revisions = new DetailsComboView();
+		revisions.setMinimumSize(new Dimension(200, 90));
 		splitPane.setLeftComponent(revisions);
 		original = new DetailsView();
 		splitPane.setRightComponent(original);

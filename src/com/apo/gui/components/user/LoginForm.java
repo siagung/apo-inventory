@@ -51,7 +51,7 @@ public class LoginForm extends JPanel {
 	/**
 	 * @return the passwordField
 	 */
-	protected JPasswordField getPasswordField() {
+	public JPasswordField getPasswordField() {
 		return passwordField;
 	}
 
@@ -60,7 +60,7 @@ public class LoginForm extends JPanel {
 	/**
 	 * @return the userNameField
 	 */
-	protected JTextField getUserNameField() {
+	public JTextField getUserNameField() {
 		return userNameField;
 	}
 
@@ -69,7 +69,7 @@ public class LoginForm extends JPanel {
 	/**
 	 * @return the loginButton
 	 */
-	protected JButton getLoginButton() {
+	public JButton getLoginButton() {
 		return loginButton;
 	}
 
@@ -78,7 +78,7 @@ public class LoginForm extends JPanel {
 	/**
 	 * @return the forgotPasswordButton
 	 */
-	protected JButton getForgotPasswordButton() {
+	public JButton getForgotPasswordButton() {
 		return forgotPasswordButton;
 	}
 
@@ -87,7 +87,7 @@ public class LoginForm extends JPanel {
 	/**
 	 * @return the exitButton
 	 */
-	protected JButton getExitButton() {
+	public JButton getExitButton() {
 		return exitButton;
 	}
 

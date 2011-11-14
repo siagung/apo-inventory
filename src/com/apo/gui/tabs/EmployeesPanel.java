@@ -1,5 +1,7 @@
 package com.apo.gui.tabs;
 
-public class EmployeesPanel {
+import com.apo.gui.components.ManagementPanel;
+
+public class EmployeesPanel extends ManagementPanel {
 
 }

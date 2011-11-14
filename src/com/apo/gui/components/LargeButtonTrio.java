@@ -26,6 +26,13 @@ public class LargeButtonTrio extends JPanel {
 		initComponents();
 	}
 	
+	public LargeButtonTrio(String button1Name, String button2Name, String button3Name) {
+		initComponents();
+		button1.setText(button1Name);
+		button2.setText(button2Name);
+		button3.setText(button3Name);
+	}
+	
 	public LargeButtonTrio(String button1Name, Icon button1Icon, String button2Name, Icon button2Icon, String button3Name, Icon button3Icon) {
 		initComponents();
 		setButton1(button1Name, button1Icon);
