@@ -27,6 +27,7 @@ public class MainWindow extends JFrame implements WindowListener {
 		this.getContentPane().add(mainPanel);
 		
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(this);
 	}
 	
 	public static void main (String[] args) {
