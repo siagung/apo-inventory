@@ -1,18 +1,11 @@
 package com.apo.facilitator.model;
 
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
+import javax.swing.AbstractListModel;
 
-public class ProductListModel implements ListModel {
-
-	@Override
-	public void addListDataListener(ListDataListener arg0) {
-		// TODO Auto-generated method stub
-
-	}
+public class ProductListModel extends AbstractListModel {
 
 	@Override
-	public Object getElementAt(int arg0) {
+	public Object getElementAt(int index) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -21,12 +14,6 @@ public class ProductListModel implements ListModel {
 	public int getSize() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void removeListDataListener(ListDataListener arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
