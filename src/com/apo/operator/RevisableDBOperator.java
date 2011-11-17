@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,88 +87,7 @@ public class RevisableDBOperator extends DBOperator {
 		
 		return newId;
 	}
-	
-	/**When creating a new item, or creating a new revision, you can't gain access to tables that reference
-	 * these items safely. This method lets you do that.
-	 * 
-	 * @param linkedTableName The name of the linked table to be updated
-	 * @param idReference The id of the item the linked table is referencing
-	 * @param idReferenceColumn The column that contains the foreign key to the id of a main table
-	 * @param revIdReference The revision id linked to the item being referenced in the linked table
-	 * @param revIdReferenceColumn The column that contains the foreign key to the revision id of a main table; putting null will only update/insert a new id
-	 * @param values
-	 * @throws SQLException
-	 * @throws InvalidColumnsException
-	 */
-	public void updateLinkedTable (String linkedTableName, int idReference, String idReferenceColumn, Integer revIdReference, String revIdReferenceColumn, Map values) throws SQLException, InvalidColumnsException {
-		boolean hasRevId;
-		
-		//check if values have invalid keys (also check if revIdReference and/or revIdColumn is/are -1 or null)
-		if (revIdReferenceColumn == null || revIdReference == -1 || revIdReference == null) {
-			Log.debugMsg(TAG, "Revision id does not exist.");
-			hasRevId = false;
-		}
-		else {
-			Log.debugMsg(TAG, "Revision id exists.");
-			hasRevId = true;
-		}
-		
-		if (hasRevId) {
-			if (this.hasIllegalKeys(values, idReferenceColumn, revIdReferenceColumn)) {
-				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + " OR " + revIdReferenceColumn + " COLUMNS TO VALUES PARAMETER?!");
-				throw new InvalidColumnsException();
-			}
-		}
-		else {
-			if (this.hasIllegalKeys(values, idReferenceColumn)) {
-				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + "COLUMN TO VALUES PARAMETER?");
-				throw new InvalidColumnsException();
-			}
-		}
-		
-		//check if entries exist that reference the id of the original table
-		//SELECT idReferenceColumn FROM linkedTableName WHERE linkedTableName.idReferenceColumn = idReference
-		String whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference;
-		ResultSet queryResult = query(false, new String[] {idReferenceColumn}, linkedTableName, whereCondition, null, null, null);
-		
-		if(!queryResult.first()) {
-			Log.debugMsg(TAG, "There are no entries under this id.");
-			if (hasRevId) {
-				values.put(idReferenceColumn, idReference);
-				values.put(revIdReferenceColumn, revIdReference);
-			}
-			else {
-				values.put(idReferenceColumn, idReference);
-			}
-			Log.debugMsg(TAG, "Inserting new entry...");
-			this.insert(linkedTableName, values);
-		}
-		else {
-			Log.debugMsg(TAG, "Entries exist under this id.");
-			queryResult.close();
-			if (!hasRevId) {
-				//copy original values from previous revision just in case
-				whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference + " AND " + linkedTableName + "." + revIdReferenceColumn + " = " + (revIdReference - 1);				
-			}
-			else {
-				//copy original values from the only entry with the id
-				whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference;
-			}
-			queryResult = query(false, null, linkedTableName, whereCondition, null, null, null);
-			HashMap previousRev = this.getMapOfRow(queryResult);
 			
-			for (Object key : previousRev.keySet()) {
-				if (values.containsKey(key.toString())) {
-					values.put(key, previousRev.get(key));
-				}
-			}
-			
-			whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference + " AND " + linkedTableName + "." + revIdReferenceColumn + " = " + revIdReference;
-			this.update(linkedTableName, values, whereCondition);			
-		}
-		
-	}	 
-	
 	/**When creating a new revision of an existing item, don't put in the revision id,
 	 * item id, head and deleted fields into the Map of values; also creates new revisions for tables linked to the main
 	 * table (via foreign keys) but does not accept keys (columns) in the values HashMap parameter that belong to those linked tables
@@ -249,7 +169,7 @@ public class RevisableDBOperator extends DBOperator {
 	
 	/**Creates new revisions for tables linked to another table and copies their existing information.
 	 * 
-	 * To update the information in these linked tables, use updateLinkedTable()
+	 * To update the information in these linked tables, use updateLinkedTableItem() or insertLinkedTableItem()
 	 * 
 	 * @param tableName The name of the original table where a new revision was made
 	 * @param uniqueId The id that is being referenced by one of the linked tables' foreign keys
@@ -296,20 +216,180 @@ public class RevisableDBOperator extends DBOperator {
 					Log.debugMsg(TAG, "Commencing update to " + exportedKeys.getString("FKTABLE_NAME"));
 					//replicate the existing version of the record
 					String whereCondition = tempFkIdColumn + " = " + uniqueId + " AND "+ tempFkRevIdColumn + " = " + (revId-1);
-					HashMap data = this.getMapOfRow(this.query(false, null, exportedKeys.getString("FKTABLE_NAME"), whereCondition, null, null, null));
-					data.remove(tempFkRevIdColumn);
-					data.put(tempFkRevIdColumn, revId);
-					this.insert(tempFkTableName, data); //confirms the new revision
-					Log.debugMsg(TAG, tempFkTableName + " has been updated.");
-					tempFkTableName = null; //reset the temp fk table name because a new fk table will be looked up					
-					tempFkIdColumn = null; //reset the temp fk id column because a new fk table will be looked up
-					tempFkRevIdColumn = null; //reset the temp fk rev id column because a new fk table will be looked up
+					ResultSet queryResult = this.query(false, null, exportedKeys.getString("FKTABLE_NAME"), whereCondition, null, null, null);
+					ArrayList<HashMap> data = this.getMapOfRows(queryResult);
+					if (data != null) {
+						for (HashMap row : data) {
+							row.remove(tempFkRevIdColumn);
+							row.put(tempFkRevIdColumn, revId);
+							this.insert(tempFkTableName, row); //confirms the new revision
+						}
+						Log.debugMsg(TAG, tempFkTableName + " has been updated.");
+						tempFkTableName = null; //reset the temp fk table name because a new fk table will be looked up					
+						tempFkIdColumn = null; //reset the temp fk id column because a new fk table will be looked up
+						tempFkRevIdColumn = null; //reset the temp fk rev id column because a new fk table will be looked up
+					}
 				}
 			}			
 		}
 		
 		exportedKeys.close();
 		
+	}
+	
+	/**Adds an item to a linked table's entries (eg, if a Contacts table has 12 existing entries assigned to 1 person
+	 * whose information can be seen in a separate table called Person, and you want to add a 13th entry, you can use this method)
+	 * 
+	 * @param linkedTableName The name of the linked table
+	 * @param idReference The id referencing the main table
+	 * @param idReferenceColumn The column name holding the id that references the main table
+	 * @param revIdReference The revision id referencing the main table's revision id; if null, the revision id is disregarded
+	 * @param revIdReferenceColumn The column name holding the revision id that references the main table; if null, this is disregarded
+	 * @param idColumn The name of the column holding the table's own id's (eg, a contact entry is tied to a person, but a person can have multiple contact entries
+	 * therefore there is a need to have a separate id columns for these multiple entries)
+	 * @param values The value of the entries that should not contain idReferenceColumn, revIdReferenceColumn and idColumn
+	 * @throws SQLException Something happened with the SQL server's connection, or perhaps a syntax error occurred
+	 * @throws NoIDExistsException Thrown when an ID does not seem to exist such that the entry is tied to an entry in the main table
+	 */
+	public void addLinkedTableItem (String linkedTableName, int idReference, String idReferenceColumn, Integer revIdReference, String revIdReferenceColumn, String idColumn, Map values) throws SQLException, InvalidColumnsException {
+		boolean hasRevId;
+		
+		if (revIdReferenceColumn == null || revIdReference <= 0 || revIdReference == null) {
+			Log.debugMsg(TAG, "Revision id does not exist.");
+			hasRevId = false;
+		}
+		else {
+			Log.debugMsg(TAG, "Revision id exists.");
+			hasRevId = true;
+		}
+		
+		//check for illegal keys in values map
+		if (hasRevId) {
+			if (this.hasIllegalKeys(values, idReferenceColumn, revIdReferenceColumn, idColumn)) {
+				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + " OR " + revIdReferenceColumn + " OR " + idColumn + " COLUMNS TO VALUES PARAMETER?!");
+				throw new InvalidColumnsException();
+			}
+		}
+		else {
+			if (this.hasIllegalKeys(values, idReferenceColumn, idColumn)) {
+				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + " OR " + idColumn + " COLUMNS TO VALUES PARAMETER?");
+				throw new InvalidColumnsException();
+			}
+		}
+		
+		//check if entries exist that reference the id of the original table
+		//SELECT idReferenceColumn FROM linkedTableName WHERE linkedTableName.idReferenceColumn = idReference
+		String whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference;
+		Log.debugMsg(TAG, "Entries exist under this id.");
+			
+		values.put(idReferenceColumn, idReference);
+			
+		if (hasRevId) {
+			values.put(revIdReferenceColumn, revIdReference);
+			whereCondition.concat(" AND " + linkedTableName + "." + revIdReferenceColumn + " = " + revIdReference);
+		}
+		
+		try {
+			int newId = this.getMaxId(linkedTableName, idColumn, whereCondition) + 1;
+			values.put(idColumn, newId);
+		}
+		catch (NoIDExistsException ex) {
+			values.remove(idColumn);
+			values.put(idColumn, 1);
+		}
+		this.insert(linkedTableName, values);			
+		
+	}
+	
+	/**When creating a new item, or creating a new revision, you can't gain access to tables that reference
+	 * these items safely. This method lets you do that.
+	 * 
+	 * @param linkedTableName The name of the linked table to be updated
+	 * @param idReference The id of the item the linked table is referencing
+	 * @param idReferenceColumn The column that contains the foreign key to the id of a main table
+	 * @param revIdReference The revision id linked to the item being referenced in the linked table
+	 * @param revIdReferenceColumn The column that contains the foreign key to the revision id of a main table; putting null will only update/insert a new id
+	 * @param idRow The id of the item that the linked table assigns for data contained in values
+	 * @param idColumn The label of the column containing the ids for the data contained in values
+	 * @param values The Map of key-value pairs that make up the entries for each column in the linked table except for idReference, revIdReference and idRow
+	 * @throws SQLException SQL server may be down, syntax error occurred, or something else unexpected happened.
+	 * @throws InvalidColumnsException Invalid columns were placed in the Map of values
+	 * @throws NoIDExistsException The linked record id does not exist and thus cannot be updated
+	 */
+	public void updateLinkedTableItem (String linkedTableName, int idReference, String idReferenceColumn, Integer revIdReference, String revIdReferenceColumn, int idRow, String idColumn, Map values) throws SQLException, InvalidColumnsException, NoIDExistsException {
+		boolean hasRevId;
+		
+		//check if values have invalid keys (also check if revIdReference and/or revIdColumn is/are <=0 or null)
+		if (revIdReferenceColumn == null || revIdReference <= 0 || revIdReference == null) {
+			Log.debugMsg(TAG, "Revision id does not exist.");
+			hasRevId = false;
+		}
+		else {
+			Log.debugMsg(TAG, "Revision id exists.");
+			hasRevId = true;
+		}
+		
+		if (hasRevId) {
+			if (this.hasIllegalKeys(values, idReferenceColumn, revIdReferenceColumn, idColumn)) {
+				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + " OR " + revIdReferenceColumn + " OR " + idColumn + " COLUMNS TO VALUES PARAMETER?!");
+				throw new InvalidColumnsException();
+			}
+		}
+		else {
+			if (this.hasIllegalKeys(values, idReferenceColumn, idColumn)) {
+				Log.errorMsg(TAG, "Y U PUT " + idReferenceColumn + " OR " + idColumn + " COLUMNS TO VALUES PARAMETER?");
+				throw new InvalidColumnsException();
+			}
+		}
+		
+		//check if entries exist that reference the id of the original table
+		//SELECT idReferenceColumn FROM linkedTableName WHERE linkedTableName.idReferenceColumn = idReference
+		String whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference;
+		ResultSet queryResult = query(false, new String[] {idReferenceColumn}, linkedTableName, whereCondition, null, null, null);
+		
+		if(!queryResult.first()) {
+			throw new NoIDExistsException();
+		}
+		else {
+			Log.debugMsg(TAG, "Entries exist under this id.");
+			queryResult.close();
+			
+			whereCondition = linkedTableName + "." + idReferenceColumn + " = " + idReference + " AND " + linkedTableName + "." + revIdReferenceColumn + " = " + revIdReference + " AND " + linkedTableName + "." + idColumn + " = " + idRow;
+			this.update(linkedTableName, values, whereCondition);			
+		}
+		
+	}	 
+	
+	/**Deletes a linked table item/record
+	 * 
+	 * @param linkedTableName The name of the linked table
+	 * @param idReference The reference to the id of the main table
+	 * @param idReferenceColumn The column containing the reference to the main table
+	 * @param revIdReference The reference to the revId of the main table; putting null will let the method ignore revId
+	 * @param revIdReferenceColumn The reference to the revId column of the linked table; putting null will let the method ignore revId
+	 * @param idRow The id number for the record corresponding to the referenced id and revId that is to be deleted
+	 * @param idColumn The name of the column holding the id's described in idRow
+	 * @throws SQLException The SQL server may have been disconnected, or a syntax error occurred
+	 */
+	public void deleteLinkedTableItem (String linkedTableName, int idReference, String idReferenceColumn, Integer revIdReference, String revIdReferenceColumn, int idRow, String idColumn) throws SQLException {
+		boolean hasRevId;
+		//check if values have invalid keys (also check if revIdReference and/or revIdColumn is/are <=0 or null)
+		if (revIdReferenceColumn == null || revIdReference <= 0 || revIdReference == null) {
+			Log.debugMsg(TAG, "Revision id does not exist.");
+			hasRevId = false;
+		}
+		else {
+			Log.debugMsg(TAG, "Revision id exists.");
+			hasRevId = true;
+		}
+		
+		Log.debugMsg(TAG, "Deleting...");
+		if (hasRevId) {
+			this.delete(linkedTableName, idReferenceColumn + " = " + idReference + " AND " + revIdReferenceColumn + " = " + revIdReference + " AND " + idColumn + " = " + idRow);
+		}
+		else {
+			delete(linkedTableName, idReferenceColumn + " = " + idReference + " AND " + idColumn + " = " + idRow);
+		}
 	}
 	
 	/**Copies the "information" or key-value pairs for each column that are present in the current (HEAD) revision of a record
@@ -445,12 +525,76 @@ public class RevisableDBOperator extends DBOperator {
 		Log.debugMsg(TAG, "Checking if the deleted marker is set to true...");
 		if (this.isMarked(tableName, uniqueId, idColumn, deleteMarkerColumn)) {
 			Log.debugMsg(TAG, "Commencing deletion");
+			deleteLinked(tableName, uniqueId, idColumn);
 			this.delete(tableName, whereCondition);
 		}
 		else {
 			Log.errorMsg(TAG, "It seems the entry hasn't been marked for deletion. Cancelling deletion...");
 			throw new UnmarkedDeleteException();
 		}
+	}
+	
+	private void deleteLinked (String tableName, int pkId, String pkIdColumn) throws SQLException {
+		ResultSet exportedKeys = getForeignReferences(tableName);
+	}
+	
+	
+	private void deleteLinked (String tableName, int pkId, String pkIdColumn, int revPkId, String pkRevIdColumn) throws SQLException {
+		ResultSet exportedKeys = getForeignReferences(tableName);
+		
+		String tempFkTableName = null; //temporarily holds the value for the foreign key's table name
+		String tempFkRevIdColumn = null;
+		String tempFkIdColumn = null;
+		
+		while (exportedKeys.next()) {
+			
+			//check if a foreign key references pkIdColumn or pkRevIdColumn
+			String pkColumnName = exportedKeys.getString("PKCOLUMN_NAME");
+			if (!pkColumnName.equals(pkIdColumn) || !pkColumnName.equals(pkRevIdColumn)) {
+				Log.debugMsg(TAG, "This foreign key does not reference " + pkIdColumn + " nor " + pkRevIdColumn);
+				tempFkTableName = null;
+				continue;
+			}
+			else {
+				/*Log.debugMsg(TAG, "This foreign key references " + tableName + "." + exportedKeys.getString("FKCOLUMN_NAME"));
+				
+				//assign id column or rev id column names to variables (depending on which ones they reference)
+				if (pkColumnName.equalsIgnoreCase(pkRevIdColumn)) {
+					tempFkRevIdColumn = exportedKeys.getString("FKCOLUMN_NAME");
+				}
+				else if (pkColumnName.equalsIgnoreCase(pkIdColumn)) {
+					tempFkIdColumn = exportedKeys.getString("FKCOLUMN_NAME");
+				}
+				
+				if (tempFkTableName == null) { 
+					//if the temporary fk table name is null, then no point of comparison is available yet
+					tempFkTableName = exportedKeys.getString("FKTABLE_NAME");
+				}
+				else if (exportedKeys.getString("FKTABLE_NAME").equalsIgnoreCase(tempFkTableName)) { 
+					//if temporary fk table is not null, then a pre-existing table name already exists, and must be equal in order to...
+					//commence the "update" (more like replicate and increment one on it)
+					
+					Log.debugMsg(TAG, "Commencing update to " + exportedKeys.getString("FKTABLE_NAME"));
+					//replicate the existing version of the record
+					String whereCondition = tempFkIdColumn + " = " + uniqueId + " AND "+ tempFkRevIdColumn + " = " + (revId-1);
+					ResultSet queryResult = this.query(false, null, exportedKeys.getString("FKTABLE_NAME"), whereCondition, null, null, null);
+					ArrayList<HashMap> data = this.getMapOfRows(queryResult);
+					if (data != null) {
+						for (HashMap row : data) {
+							row.remove(tempFkRevIdColumn);
+							row.put(tempFkRevIdColumn, revId);
+							this.insert(tempFkTableName, row); //confirms the new revision
+						}
+						Log.debugMsg(TAG, tempFkTableName + " has been updated.");
+						tempFkTableName = null; //reset the temp fk table name because a new fk table will be looked up					
+						tempFkIdColumn = null; //reset the temp fk id column because a new fk table will be looked up
+						tempFkRevIdColumn = null; //reset the temp fk rev id column because a new fk table will be looked up
+					}
+				}*/
+			}
+		}
+		
+		exportedKeys.close();
 	}
 	
 	/**Deletes revisions tied to an id that aren't marked HEAD
@@ -624,10 +768,29 @@ public class RevisableDBOperator extends DBOperator {
      * @throws SQLException Throws an SQL Exception if either server isn't connected properly, or table/id column may not exist
 	 * @throws NoIDExistsException Throws this if the ID column doesn't seem to have any contents
 	 */
-	protected int getMaxId (String tableName, String idColumn) throws SQLException, NoIDExistsException {
+	public int getMaxId (String tableName, String idColumn) throws SQLException, NoIDExistsException {
+		return getMaxId (tableName, idColumn, null);
+	}
+	
+	/**Returns the maximum number of an id column in a table
+	 * 
+	 * @param tableName The table that will be looked up
+	 * @param idColumn The column of the tabl that will contain integers; the largest number itself is returned
+	 * @param where use this parameter to drill down into another id column, if available; null will have the same effect as getMaxId (tableName, idColumn)
+	 * @return the largest integer value for the specified id column
+	 * @throws SQLException Throws an SQL Exception if teither server isn't connected properly, or table/id column may not exist
+	 * @throws NoIDExistsException Throws this if the ID column doesn't seem to have any contents
+	 */
+	protected int getMaxId (String tableName, String idColumn, String where) throws SQLException, NoIDExistsException {
 		Statement request = db.getStatement();
-		//SELECT MAX(tableName.idColumn) FROM tableName;
-		String command = "SELECT MAX(" + tableName + "." + idColumn + ") FROM " + tableName + ";";
+		//SELECT MAX(tableName.idColumn) FROM tableName WHERE where;
+		String command;
+		if (where != null) {
+			command = "SELECT MAX(" + tableName + "." + idColumn + ") FROM " + tableName + " WHERE " + where + ";";
+		}
+		else {
+			command = "SELECT MAX(" + tableName + "." + idColumn + ") FROM " + tableName + ";";
+		}
 		Log.debugMsg(TAG, "Retrieving max id");
 		ResultSet result = request.executeQuery(command);
 		if (result.first()) {

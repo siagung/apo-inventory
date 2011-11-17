@@ -229,7 +229,12 @@ public class DBOperator {
      */
     public HashMap getMapOfRow (ResultSet result) throws SQLException {
     	ArrayList<HashMap> rowMaps = getMapOfRows (result);
-    	return rowMaps.get(0);
+    	if (rowMaps == null) {
+    		return null;
+    	}
+    	else {
+    		return rowMaps.get(0);
+    	}
     }
     
     protected ArrayList<String> getTableColumns (String tableName) {

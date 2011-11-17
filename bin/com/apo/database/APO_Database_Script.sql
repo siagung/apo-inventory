@@ -141,9 +141,8 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_address` (
   `customer_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `address_id` VARCHAR(45) NOT NULL ,
   `address` VARCHAR(45) NOT NULL ,
-  PRIMARY KEY (`customer_id`, `revision_id`, `address_id`) ,
+  PRIMARY KEY (`customer_id`, `revision_id`, `address`) ,
   INDEX `customer_id` (`customer_id` ASC, `revision_id` ASC) ,
   CONSTRAINT `customer_id`
     FOREIGN KEY (`customer_id` , `revision_id` )
@@ -171,10 +170,9 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_contact` (
   `customer_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `contact_id` VARCHAR(45) NOT NULL ,
   `kind` VARCHAR(20) NOT NULL ,
   `detail` VARCHAR(30) NOT NULL ,
-  PRIMARY KEY (`customer_id`, `revision_id`, `contact_id`) ,
+  PRIMARY KEY (`customer_id`, `revision_id`, `kind`, `detail`) ,
   INDEX `id` (`customer_id` ASC, `revision_id` ASC) ,
   INDEX `contact_kind` (`kind` ASC) ,
   CONSTRAINT `contact_kind`
@@ -267,12 +265,10 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_invoice_item` (
   `order_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `item_id` VARCHAR(45) NOT NULL ,
   `product_id` INT(11) NOT NULL ,
   `quantity` DECIMAL(2,0) NOT NULL ,
   `soldPrice` DECIMAL(2,0) NOT NULL ,
-  PRIMARY KEY (`order_id`, `revision_id`, `item_id`) ,
-  UNIQUE INDEX `product_id_UNIQUE` (`product_id` ASC) ,
+  PRIMARY KEY (`order_id`, `revision_id`, `product_id`) ,
   INDEX `customer_order` (`order_id` ASC, `revision_id` ASC) ,
   INDEX `product_customer_item` (`product_id` ASC) ,
   CONSTRAINT `customer_order`
@@ -293,8 +289,8 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `apo_db`.`customer_order_payment`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_order_payment` (
-  `order_id` INT(11) NOT NULL ,
   `payment_id` INT(11) NOT NULL ,
+  `order_id` INT(11) NOT NULL ,
   `clearing_code` VARCHAR(45) NOT NULL ,
   `mode_of_payment` VARCHAR(10) NOT NULL ,
   `amount_paid` DECIMAL(2,0) NOT NULL ,
@@ -302,7 +298,7 @@ CREATE  TABLE IF NOT EXISTS `apo_db`.`customer_order_payment` (
   `check_number` INT(11) NULL DEFAULT NULL ,
   `check_date` DATE NULL DEFAULT NULL ,
   `date_paid` DATE NOT NULL ,
-  PRIMARY KEY (`order_id`, `payment_id`) ,
+  PRIMARY KEY (`payment_id`, `order_id`) ,
   INDEX `customer_order_payment` (`order_id` ASC) ,
   CONSTRAINT `customer_order_payment`
     FOREIGN KEY (`order_id` )
@@ -349,9 +345,8 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`employee_address` (
   `employee_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `address_id` INT(11) NOT NULL ,
   `address` VARCHAR(140) NOT NULL ,
-  PRIMARY KEY (`employee_id`, `revision_id`, `address_id`) ,
+  PRIMARY KEY (`employee_id`, `revision_id`, `address`) ,
   INDEX `employee_id` (`employee_id` ASC) ,
   CONSTRAINT `employee_id`
     FOREIGN KEY (`employee_id` )
@@ -368,10 +363,9 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`employee_contact` (
   `employee_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `contact_id` INT(11) NOT NULL ,
   `kind` VARCHAR(20) NOT NULL ,
   `detail` VARCHAR(30) NOT NULL ,
-  PRIMARY KEY (`employee_id`, `revision_id`, `contact_id`) ,
+  PRIMARY KEY (`employee_id`, `revision_id`, `kind`, `detail`) ,
   INDEX `kind` (`kind` ASC) ,
   INDEX `employee` (`employee_id` ASC) ,
   CONSTRAINT `employee`
@@ -408,9 +402,8 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`supplier_address` (
   `supplier_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `address_id` VARCHAR(45) NOT NULL ,
   `address` VARCHAR(60) NOT NULL ,
-  PRIMARY KEY (`supplier_id`, `revision_id`, `address_id`) ,
+  PRIMARY KEY (`supplier_id`, `revision_id`, `address`) ,
   INDEX `supplier` (`supplier_id` ASC, `revision_id` ASC) ,
   CONSTRAINT `supplier`
     FOREIGN KEY (`supplier_id` , `revision_id` )
@@ -427,10 +420,9 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`supplier_contact` (
   `supplier_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `contact_id` INT(11) NOT NULL ,
   `kind` VARCHAR(20) NOT NULL ,
   `detail` VARCHAR(30) NOT NULL ,
-  PRIMARY KEY (`supplier_id`, `revision_id`, `contact_id`) ,
+  PRIMARY KEY (`supplier_id`, `revision_id`, `kind`, `detail`) ,
   INDEX `supplier_info` (`supplier_id` ASC, `revision_id` ASC) ,
   INDEX `supplier_contact_kind` (`kind` ASC) ,
   CONSTRAINT `supplier_contact_kind`
@@ -476,12 +468,11 @@ DEFAULT CHARACTER SET = latin1;
 CREATE  TABLE IF NOT EXISTS `apo_db`.`supplier_invoice_item` (
   `invoice_id` INT(11) NOT NULL ,
   `revision_id` INT(11) NOT NULL ,
-  `item_id` INT(11) NOT NULL ,
   `product_id` INT(11) NOT NULL ,
   `po_id` VARCHAR(45) NOT NULL ,
   `quantity` DECIMAL(2,0) NOT NULL ,
   `sold_price` DECIMAL(2,0) NOT NULL ,
-  PRIMARY KEY (`invoice_id`, `revision_id`, `item_id`) ,
+  PRIMARY KEY (`invoice_id`, `revision_id`, `product_id`, `po_id`) ,
   INDEX `order_id` (`invoice_id` ASC) ,
   INDEX `product_id` (`product_id` ASC) ,
   CONSTRAINT `order_id`

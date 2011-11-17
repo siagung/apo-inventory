@@ -1,5 +1,6 @@
 package com.apo.facilitator.table;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.ComboBoxModel;
@@ -69,11 +70,11 @@ public class CustomerAddressFacilitator extends Facilitator {
 		return null;
 	}
 
-	@Override
-	public int newItem(HashMap data) {
-		// TODO Auto-generated method stub
+	public int newAddressItem(ArrayList<String> addresses) {
+		
 		return 0;
 	}
+	
 
 	@Override
 	public int newRevision(int id, HashMap data) {
@@ -109,6 +110,13 @@ public class CustomerAddressFacilitator extends Facilitator {
 	public void deletePreviousRevisions(int id) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Deprecated
+	@Override
+	public int newItem(HashMap data) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

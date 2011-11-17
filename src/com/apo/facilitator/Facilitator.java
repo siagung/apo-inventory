@@ -14,7 +14,7 @@ import javax.swing.table.TableModel;
 import com.apo.debug.Log;
 import com.apo.operator.RevisableDBOperator;
 
-public abstract class Facilitator <Value extends Object> {
+public abstract class Facilitator <Value> {
 	/**The RevisableDBOperator to be passed into the Facilitator**/
 	protected RevisableDBOperator operator;
 	
