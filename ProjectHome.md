@@ -1,0 +1,1 @@
+An inventory system for AP Oriental Industrial Trading, Inc. designed for scalability, transparency, and easy access.
